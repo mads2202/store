@@ -1,33 +1,39 @@
 package com.malyshev2202.store.model;
 
-import java.awt.image.BufferedImage;
+import org.springframework.beans.factory.annotation.Value;
 
+import javax.persistence.*;
+
+import java.util.Set;
+
+
+@Entity
 public class Product {
-    private Long productId;
-    private BufferedImage productImage;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
     private String productName;
     private String description;
+    @ManyToMany
+    private Set<ProductCategory> category;
+
     private double price;
-    private ProductCategory category;
+
 
     public Product() {
     }
 
-    public Product(BufferedImage productImage, String productName,
-                   String description, double price) {
-        this.productImage = productImage;
+    public Product(String productName,
+                   String description, Double price) {
         this.productName = productName;
         this.description = description;
         this.price = price;
     }
 
-    public BufferedImage getProductImage() {
-        return productImage;
+    public Long getId() {
+        return id;
     }
 
-    public void setProductImage(BufferedImage productImage) {
-        this.productImage = productImage;
-    }
 
     public String getProductName() {
         return productName;
@@ -51,13 +57,5 @@ public class Product {
 
     public void setPrice(double price) {
         this.price = price;
-    }
-
-    public ProductCategory getCategory() {
-        return category;
-    }
-
-    public void setCategory(ProductCategory category) {
-        this.category = category;
     }
 }
