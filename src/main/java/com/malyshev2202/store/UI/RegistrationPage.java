@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Route("reg")
 public class RegistrationPage extends VerticalLayout {
     private final UserRepo repo;
-    private User user;
     private Binder<User> binder = new Binder<>(User.class);
     private TextField email = new TextField("Email");
     private PasswordField password = new PasswordField("Пароль");
@@ -29,11 +28,11 @@ public class RegistrationPage extends VerticalLayout {
         this.repo = r;
         regButton.setIcon(VaadinIcon.ENTER.create());
         regButton.getElement().getThemeList().add("primary");
-        VerticalLayout layout = new VerticalLayout(label, email, password, repeat, regButton);
-        add(layout);
+        setHorizontalComponentAlignment(Alignment.CENTER);
+        add(label, email, password, repeat, regButton);
         binder.bindInstanceFields(this);
 
-        regButton.addClickListener(e->regNewUser(new User()));
+        regButton.addClickListener(e->regNewUser(binder.getBean()));
         regButton.addClickShortcut(Key.ENTER);
 
     }
@@ -42,14 +41,13 @@ public class RegistrationPage extends VerticalLayout {
         if (password.getValue().isEmpty() || repeat.getValue().isEmpty() || email.getValue().isEmpty()
                 ) {
             label.setText("Заполните все поля формы ");
-        } if (!password.getValue().equals(repeat.getValue())){
+        } else if (!password.getValue().equals(repeat.getValue())){
             label.setText("Пароли должны совпадать");
-        }if(repo.findByEmail(email.getValue())!=null){
+        }else if(repo.findByEmail(email.getValue())!=null){
             label.setText("Пользователь с таким email уже зарегистрирован");
         }else {
-            user=u;
-            binder.setBean(user);
-            repo.save(user);
+            repo.save(new User(email.getValue(),password.getValue()));
+
         }
 
     }

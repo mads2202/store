@@ -1,6 +1,8 @@
 package com.malyshev2202.store.backend.config;
 
 
+
+import com.malyshev2202.store.backend.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,12 +14,23 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+
+import javax.sql.DataSource;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig
         extends WebSecurityConfigurerAdapter {
+   @Autowired
+    private DataSource dataSource;
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -44,10 +57,8 @@ public class SecurityConfig
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-                .inMemoryAuthentication().passwordEncoder(new BCryptPasswordEncoder())
-                .withUser("admin").password("$2a$10$obstjyWMAVfsNoKisfyCjO/DNfO9OoMOKNt5a6GRlVS7XNUzYuUbO").roles("ADMIN");// user and pass: admin
-    }
+        auth.userDetailsService(userDetailsService).passwordEncoder(NoOpPasswordEncoder.getInstance());}
+
 
     /**
      * Expose the AuthenticationManager (to be used in LoginView)

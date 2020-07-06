@@ -48,7 +48,7 @@ public class LoginPage extends VerticalLayout {
                 sc.setAuthentication(auth);
             }
             catch (final AuthenticationException ex) {
-                String message = "Incorrect user or password:" + ex.getMessage() + mail.getValue() + ":" + password.getValue();
+                String message = "Incorrect user or password: " + ex.getMessage()+" " + mail.getValue() + ":" + password.getValue();
                 Notification.show(message);
         }});
 
