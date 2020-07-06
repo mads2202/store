@@ -1,8 +1,17 @@
-package com.malyshev2202.store.ui;
+package com.malyshev2202.store.UI;
 
-import com.malyshev2202.store.components.ProductEditor;
-import com.malyshev2202.store.model.Product;
-import com.malyshev2202.store.repo.ProductRepo;
+import com.malyshev2202.store.backend.component.ProductEditor;
+import com.malyshev2202.store.backend.model.Product;
+import com.malyshev2202.store.backend.repo.ProductRepo;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.router.Route;
+
+
+
+
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.MenuItem;
@@ -41,7 +50,7 @@ public class MainPage extends VerticalLayout {
         MenuBar menuBar=new MenuBar();
         MenuItem menu=menuBar.addItem(VaadinIcon.MENU.create());
         productGrid.setItems(repo.findAll());
-        productGrid.setColumns("productName","description","price");
+        productGrid.setColumns("name","description","price","number");
         HorizontalLayout topButtons=new HorizontalLayout(menuBar,filter,profile,bascket,addNewBtn);
         add(topButtons,productGrid,editor);
         productGrid.asSingleSelect().addValueChangeListener(e -> {
@@ -66,7 +75,7 @@ public class MainPage extends VerticalLayout {
         if(StringUtils.isEmpty(filterText)){
             productGrid.setItems(repo.findAll());
         }
-        else productGrid.setItems(repo.findByProductName(filterText));
+        else productGrid.setItems(repo.findByName(filterText));
 
     }
 

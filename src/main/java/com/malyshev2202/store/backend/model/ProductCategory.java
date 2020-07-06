@@ -1,20 +1,22 @@
-package com.malyshev2202.store.model;
+package com.malyshev2202.store.backend.model;
 
-import javax.persistence.*;
-import java.util.Set;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 @Entity
-@Table(name="p_name")
 public class ProductCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
-    @Transient
-    @ManyToMany(mappedBy = "roles")
-    Set<Product> products;
 
     public ProductCategory() {
+    }
+
+    public ProductCategory(String name) {
+        this.name = name;
     }
 
     public Long getId() {
@@ -31,13 +33,5 @@ public class ProductCategory {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Set<Product> getProducts() {
-        return products;
-    }
-
-    public void setProducts(Set<Product> products) {
-        this.products = products;
     }
 }

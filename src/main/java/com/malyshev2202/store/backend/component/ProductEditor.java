@@ -1,7 +1,7 @@
-package com.malyshev2202.store.components;
+package com.malyshev2202.store.backend.component;
 
-import com.malyshev2202.store.model.Product;
-import com.malyshev2202.store.repo.ProductRepo;
+import com.malyshev2202.store.backend.model.Product;
+import com.malyshev2202.store.backend.repo.ProductRepo;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.KeyNotifier;
 import com.vaadin.flow.component.button.Button;
@@ -11,6 +11,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.StringToDoubleConverter;
+import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +25,10 @@ public class ProductEditor extends VerticalLayout implements KeyNotifier {
     Button save = new Button("Save", VaadinIcon.CHECK.create());
     Button cancel = new Button("Cancel");
     Button delete = new Button("Delete", VaadinIcon.TRASH.create());
-    TextField productName = new TextField("Product Name");
+    TextField name = new TextField("Product Name");
     TextField description = new TextField("Description");
     TextField price = new TextField("Price");
+    TextField number = new TextField("Number");
     HorizontalLayout actions = new HorizontalLayout(save, cancel, delete);
     ChangeHandler changeHandler;
 
@@ -37,12 +39,14 @@ public class ProductEditor extends VerticalLayout implements KeyNotifier {
     @Autowired
     public ProductEditor(ProductRepo pr) {
         this.repo = pr;
-        add(productName, description, price, actions);
+        add(name, description, price,number, actions);
         setSpacing(true);
-        binder.forField(productName).bind(Product::getProductName, Product::setProductName);
+        binder.forField(name).bind(Product::getName, Product::setName);
         binder.forField(description).bind(Product::getDescription, Product::setDescription);
         binder.forField(price).withConverter(new StringToDoubleConverter("Must enter a double"))
                 .bind(Product::getPrice, Product::setPrice);
+        binder.forField(number).withConverter(new StringToIntegerConverter("Must enter a integer"))
+                .bind(Product::getNumber, Product::setNumber);
         save.getElement().getThemeList().add("primary");
         delete.getElement().getThemeList().add("error");
 
@@ -79,7 +83,7 @@ public class ProductEditor extends VerticalLayout implements KeyNotifier {
         setVisible(true);
 
         // Focus first name initially
-        productName.focus();
+        name.focus();
     }
 
     void delete() {

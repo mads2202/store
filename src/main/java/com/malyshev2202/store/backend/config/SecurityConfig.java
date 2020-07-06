@@ -1,6 +1,6 @@
-package com.malyshev2202.store.security;
+package com.malyshev2202.store.backend.config;
 
-import org.apache.catalina.security.SecurityUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,48 +11,47 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.context.support.SecurityWebApplicationContextUtils;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfiguration
+public class SecurityConfig
         extends WebSecurityConfigurerAdapter {
-    private static final String LOGIN_PROCESSING_URL = "/login";
-    private static final String LOGIN_FAILURE_URL = "/login";
-    private static final String LOGIN_URL = "/login";
-    private static final String LOGOUT_SUCCESS_URL = "/";
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
+                .csrf().disable() // CSRF is handled by Vaadin: https://vaadin.com/framework/security
                 .exceptionHandling().accessDeniedPage("/accessDenied")
-                 .and().
-                authorizeRequests().antMatchers("/VAADIN/**", "/PUSH/**", "/UIDL/**", "/vaadinServlet/UIDL/**","/").permitAll().
-                anyRequest().authenticated()
-                // Configure the login page.
-                .and().formLogin().loginPage(LOGIN_URL).permitAll().loginProcessingUrl(LOGIN_PROCESSING_URL)
-                .failureUrl(LOGIN_FAILURE_URL)
-                // Configure logout
-                .and().logout().logoutSuccessUrl(LOGOUT_SUCCESS_URL);;
-
+                .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
+                .and().logout().logoutSuccessUrl("/")
+                .and()
+                .authorizeRequests()
+                // allow Vaadin URLs and the login URL without authentication
+                .regexMatchers("/frontend/.*", "/VAADIN/.*", "/login", "/accessDenied","/","/reg").permitAll()
+                .regexMatchers(HttpMethod.POST, "/\\?v-r=.*").permitAll()
+                // deny any other URL until authenticated
+                .antMatchers("/**").fullyAuthenticated()
+            /*
+             Note that anonymous authentication is enabled by default, therefore;
+             SecurityContextHolder.getContext().getAuthentication().isAuthenticated() always will return true.
+             Look at LoginView.beforeEnter method.
+             more info: https://docs.spring.io/spring-security/site/docs/4.0.x/reference/html/anonymous.html
+             */
+        ;
     }
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth
                 .inMemoryAuthentication().passwordEncoder(new BCryptPasswordEncoder())
-                .withUser("admin@mail.ru").password("admin").roles("ADMIN");// user and pass: admin
+                .withUser("admin").password("$2a$10$obstjyWMAVfsNoKisfyCjO/DNfO9OoMOKNt5a6GRlVS7XNUzYuUbO").roles("ADMIN");// user and pass: admin
     }
 
     /**
      * Expose the AuthenticationManager (to be used in LoginView)
+     *
      * @return
      * @throws Exception
      */
@@ -62,3 +61,4 @@ public class SecurityConfiguration
         return super.authenticationManagerBean();
     }
 }
+
