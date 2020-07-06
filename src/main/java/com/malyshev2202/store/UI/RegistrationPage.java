@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Route("reg")
 public class RegistrationPage extends VerticalLayout {
     private final UserRepo repo;
-    private Binder<User> binder = new Binder<>(User.class);
     private TextField email = new TextField("Email");
     private PasswordField password = new PasswordField("Пароль");
     private PasswordField repeat = new PasswordField("Повторите пароль");
@@ -30,14 +29,14 @@ public class RegistrationPage extends VerticalLayout {
         regButton.getElement().getThemeList().add("primary");
         setHorizontalComponentAlignment(Alignment.CENTER);
         add(label, email, password, repeat, regButton);
-        binder.bindInstanceFields(this);
 
-        regButton.addClickListener(e->regNewUser(binder.getBean()));
+
+        regButton.addClickListener(e->regNewUser());
         regButton.addClickShortcut(Key.ENTER);
 
     }
 
-    public void regNewUser(User u) {
+    public void regNewUser() {
         if (password.getValue().isEmpty() || repeat.getValue().isEmpty() || email.getValue().isEmpty()
                 ) {
             label.setText("Заполните все поля формы ");
