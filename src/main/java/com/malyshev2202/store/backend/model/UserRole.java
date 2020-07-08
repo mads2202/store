@@ -7,5 +7,5 @@ import java.util.Set;
 
 
 public enum  UserRole  {
-    USER;
+    USER,ADMIN;
 }

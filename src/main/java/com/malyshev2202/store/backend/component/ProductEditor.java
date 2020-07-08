@@ -60,7 +60,7 @@ public class ProductEditor extends VerticalLayout implements KeyNotifier {
 
 
     }
-
+//редактирование продукта
     public void editProduct(Product p) {
         if (p == null) {
             setVisible(false);
@@ -85,20 +85,19 @@ public class ProductEditor extends VerticalLayout implements KeyNotifier {
         // Focus first name initially
         name.focus();
     }
-
+//удаление товара
     void delete() {
         repo.delete(product);
         changeHandler.onChange();
     }
-
+//сохранение товара
     void save() {
         repo.save(product);
         changeHandler.onChange();
     }
-
+    // ChangeHandler is notified when either save or delete
+    // is clicked
     public void setChangeHandler(ChangeHandler h) {
-        // ChangeHandler is notified when either save or delete
-        // is clicked
         changeHandler = h;
     }
 
