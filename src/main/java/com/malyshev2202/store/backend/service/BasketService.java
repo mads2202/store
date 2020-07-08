@@ -9,10 +9,10 @@ import java.util.Date;
 @Service
 public class BasketService {
     //получение даты создания корзины
-    public String getCurrentDate()
+    public Date getCurrentDate()
     {
         Date date= new Date();
-        return date.toString();
+        return date;
     }
     //подсчёт общей стоимости корзины
     public double getTotalPrice(Basket basket){

@@ -1,6 +1,9 @@
 package com.malyshev2202.store.UI;
 
 import com.malyshev2202.store.backend.model.Basket;
+import com.malyshev2202.store.backend.repo.BasketRepo;
+import com.malyshev2202.store.backend.service.BasketService;
+import com.malyshev2202.store.backend.service.CustomUserDetailsService;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -26,6 +29,9 @@ import javax.servlet.http.HttpServletRequest;
 
 @Route(value = "login")
 public class LoginPage extends VerticalLayout {
+    private final BasketService basketService;
+    private final CustomUserDetailsService userDetailsService;
+    private final BasketRepo basketRepo;
     private Button login = new Button("Вход");
     private EmailField mail = new EmailField("Ввведите ваш email");
     private PasswordField password = new PasswordField("Введите ваш пароль");
@@ -36,7 +42,10 @@ public class LoginPage extends VerticalLayout {
 
     @Autowired
     private HttpServletRequest req;
-    public LoginPage() {
+    public LoginPage(BasketRepo br, CustomUserDetailsService uds, BasketService bs) {
+        this.basketService=bs;
+        this.userDetailsService=uds;
+        this.basketRepo=br;
         VerticalLayout layout = new VerticalLayout(mail, password, login,regLink);
         layout.setAlignItems(Alignment.CENTER);
         add(layout);
@@ -48,6 +57,8 @@ public class LoginPage extends VerticalLayout {
                 Authentication auth = authManager.authenticate(authReq);
                 SecurityContext sc = SecurityContextHolder.getContext();
                 sc.setAuthentication(auth);
+                Basket basket=new Basket(userDetailsService.getCurrentUser(),basketService.getCurrentDate());
+                basketRepo.save(basket);
                 UI.getCurrent().navigate("");
             }
             catch (final AuthenticationException ex) {

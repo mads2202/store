@@ -2,17 +2,12 @@ package com.malyshev2202.store.UI;
 
 import com.malyshev2202.store.backend.component.ProductEditor;
 import com.malyshev2202.store.backend.model.Basket;
+import com.malyshev2202.store.backend.model.BasketItem;
 import com.malyshev2202.store.backend.model.Product;
-import com.malyshev2202.store.backend.model.User;
+import com.malyshev2202.store.backend.repo.BasketItemRepo;
 import com.malyshev2202.store.backend.repo.BasketRepo;
 import com.malyshev2202.store.backend.repo.ProductRepo;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.menubar.MenuBar;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.router.Route;
-
-
+import com.malyshev2202.store.backend.service.CustomUserDetailsService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.MenuItem;
@@ -22,12 +17,15 @@ import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.selection.SelectionEvent;
+import com.vaadin.flow.data.selection.SelectionListener;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
+
+import java.lang.invoke.WrongMethodTypeException;
 
 @Route("")
 public class MainPage extends VerticalLayout {
@@ -40,13 +38,18 @@ public class MainPage extends VerticalLayout {
     private final Button addNewBtn = new Button("Новый товар", VaadinIcon.PLUS.create());
     private Button addToBasket = new Button("Добавить в корзину");
     private Button logout = new Button("Выйти");
-    private final BasketRepo brepo;
+    private final BasketRepo basketRepo;
+    private final CustomUserDetailsService userDetailsService;
+    private final BasketItemRepo basketItemRepo;
+    private BasketItem item;
 
 
     @Autowired
-    public MainPage(ProductRepo r, ProductEditor editor, BasketRepo br) {
+    public MainPage(ProductRepo r, ProductEditor editor, BasketRepo br, CustomUserDetailsService uds, BasketItemRepo bir) {
         //Добавление кнопочек и прочего
-        this.brepo = br;
+        this.basketItemRepo = bir;
+        this.userDetailsService = uds;
+        this.basketRepo = br;
         this.repo = r;
         this.editor = editor;
         this.profile = new Button("Профиль", VaadinIcon.USER.create());
@@ -63,7 +66,7 @@ public class MainPage extends VerticalLayout {
         HorizontalLayout bottomButtons = new HorizontalLayout(addToBasket);
         bottomButtons.setVisible(false);
         add(topButtons, productGrid, editor, bottomButtons);
-
+        productGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
         //когда товар выбран запускай редактирование
         productGrid.asSingleSelect().addValueChangeListener(e -> {
             editor.editProduct(e.getValue());
@@ -78,17 +81,31 @@ public class MainPage extends VerticalLayout {
 
         //Если продукт выбран покажи кнопку добавления в корзину
         productGrid.addSelectionListener(e -> {
-            if (productGrid.getSelectedItems() != null)
+            if
+                (productGrid.getSelectedItems() != null){
                 addToBasket.setVisible(true);
+                for (Product product : productGrid.getSelectedItems()
+                ) {
+                    item = new BasketItem(product.getName(), product.getPrice(), 1,
+                            product,basketRepo.findByCustomer(userDetailsService.getCurrentUsername()));
+
+                }
+            }
             else
-                addToBasket.setVisible(false);
+            addToBasket.setVisible(false);
         });
+
 
         //todo:логика добавления в корзину
         addToBasket.addClickListener(e -> {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            Basket basket = basketRepo.findByCustomer(userDetailsService.getCurrentUsername());
 
-            productGrid.getSelectedItems();
+            basketItemRepo.save(item);
+
+
+
+            basketRepo.save(basket);
+
         });
 
 

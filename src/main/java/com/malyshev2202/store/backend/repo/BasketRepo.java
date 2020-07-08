@@ -10,7 +10,9 @@ import java.util.List;
 
 public interface BasketRepo extends JpaRepository<Basket,Long> {
     //поиск последней созданной для этого пользователя корзины
-    @Query(value = "from Product p"+" where p.name like concat( '%',:name,'%')")
-    public List<Product> findByName(@Param("name") String name);
+    @Query(value = "from Basket b where b.user=(select u.id from User u where u.email=:name)"+
+            "and b.date=(select max(bb.date) from Basket bb where b.user=bb.user)"
+            )
+    public Basket findByCustomer(@Param("name") String name);
 }
 

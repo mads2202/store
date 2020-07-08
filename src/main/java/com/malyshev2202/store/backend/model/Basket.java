@@ -1,7 +1,10 @@
 package com.malyshev2202.store.backend.model;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class Basket {
@@ -10,17 +13,17 @@ public class Basket {
     private Long id;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="user_id")
-    private User customer;
+    private User user;
     @Transient
-    private HashMap<Product,Integer> productList;
+    private HashSet<BasketItem> basketItemSet=new HashSet<>();
     private double totalPrice;
-    private String date;
+    private Date date;
 
     public Basket() {
     }
 
-    public Basket(User customer,String date) {
-        this.customer = customer;
+    public Basket(User customer,Date date) {
+        this.user = customer;
         this.date=date;
     }
 
@@ -32,20 +35,20 @@ public class Basket {
         this.id = id;
     }
 
-    public User getCustomer() {
-        return customer;
+    public User getUser() {
+        return user;
     }
 
-    public void setCustomer(User customer) {
-        this.customer = customer;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public HashMap<Product, Integer> getProductList() {
-        return productList;
+    public HashSet<BasketItem> getBasketItemSet() {
+        return basketItemSet;
     }
 
-    public void setProductList(HashMap<Product, Integer> productList) {
-        this.productList = productList;
+    public void setBasketItemSet(HashSet<BasketItem> basketItemSet) {
+        this.basketItemSet = basketItemSet;
     }
 
     public double getTotalPrice() {
@@ -56,11 +59,11 @@ public class Basket {
         this.totalPrice = totalPrice;
     }
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 }
