@@ -1,6 +1,7 @@
 package com.malyshev2202.store.backend.model;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 public class BasketItem {
@@ -75,4 +76,22 @@ public class BasketItem {
     public void setBasket(Basket basket) {
         this.basket = basket;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof BasketItem)) return false;
+        BasketItem that = (BasketItem) o;
+        return Double.compare(that.price, price) == 0 &&
+                quantity == that.quantity &&
+                name.equals(that.name) &&
+                product.equals(that.product) &&
+                basket.equals(that.basket);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, price, quantity, product, basket);
+    }
 }
+

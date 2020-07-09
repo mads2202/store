@@ -17,19 +17,18 @@ import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.selection.SelectionEvent;
-import com.vaadin.flow.data.selection.SelectionListener;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 
-import java.lang.invoke.WrongMethodTypeException;
-
+import java.util.ArrayList;
+import java.util.List;
+//todo: сдалай проверку на то кто зашёл админ или юзер, они разные кнопки должны видеть
 @Route("")
 public class MainPage extends VerticalLayout {
-    private final ProductRepo repo;
+    private final ProductRepo productRepo;
     private final ProductEditor editor;
     private TextField filter;
     private Grid<Product> productGrid = new Grid<>(Product.class);
@@ -50,7 +49,7 @@ public class MainPage extends VerticalLayout {
         this.basketItemRepo = bir;
         this.userDetailsService = uds;
         this.basketRepo = br;
-        this.repo = r;
+        this.productRepo = r;
         this.editor = editor;
         this.profile = new Button("Профиль", VaadinIcon.USER.create());
         this.bascket = new Button("Корзина", VaadinIcon.CART_O.create());
@@ -60,7 +59,7 @@ public class MainPage extends VerticalLayout {
         filter.addValueChangeListener(e -> findProduct(e.getValue()));
         MenuBar menuBar = new MenuBar();
         MenuItem menu = menuBar.addItem(VaadinIcon.MENU.create());
-        productGrid.setItems(repo.findAll());
+        productGrid.setItems(productRepo.findAll());
         productGrid.setColumns("name", "description", "price", "number");
         HorizontalLayout topButtons = new HorizontalLayout(menuBar, filter, profile, bascket, logout, addNewBtn);
         HorizontalLayout bottomButtons = new HorizontalLayout(addToBasket);
@@ -82,29 +81,53 @@ public class MainPage extends VerticalLayout {
         //Если продукт выбран покажи кнопку добавления в корзину
         productGrid.addSelectionListener(e -> {
             if
-                (productGrid.getSelectedItems() != null){
+            (productGrid.getSelectedItems() != null) {
                 addToBasket.setVisible(true);
+                List<BasketItem> list=basketItemRepo.findByBasket(basketRepo.findByCustomer(userDetailsService.getCurrentUsername()).getId());
+                //пробегаем в цикле по всем выбранным продуктам, но у меня он только 1
                 for (Product product : productGrid.getSelectedItems()
                 ) {
-                    item = new BasketItem(product.getName(), product.getPrice(), 1,
-                            product,basketRepo.findByCustomer(userDetailsService.getCurrentUsername()));
+                    //проверка есть ли вообще BasketItem для этой корхины сейчас
+                    if (!list.isEmpty()) {
+                        //пробегаем по всем существующим для этой корзины BasketItem
+                        for (BasketItem existedItem : basketItemRepo.findByBasket(basketRepo.
+                                findByCustomer(userDetailsService.getCurrentUsername()).getId())
+                        ) {
+                            //если такой BasketItem существует то увеличьте его количество на 1
+                            if (product.getName().equals(existedItem.getName()) && product.getPrice() == existedItem.getPrice()
+                                    && product.getId() == existedItem.getProduct().getId()) {
+                                existedItem.setQuantity(existedItem.getQuantity() + 1);
+                                item = existedItem;
+
+                            } else
+                                //иначе создайте новый айтем
+                                item = new BasketItem(product.getName(), product.getPrice(), 1,
+                                        product, basketRepo.findByCustomer(userDetailsService.getCurrentUsername()));
+
+                        }
+
+
+                    }
+                    //создать новый айтем если мы не прошли проверку
+                    else
+                        item = new BasketItem(product.getName(), product.getPrice(), 1,
+                                product, basketRepo.findByCustomer(userDetailsService.getCurrentUsername()));
+
 
                 }
-            }
-            else
-            addToBasket.setVisible(false);
+            } else
+                addToBasket.setVisible(false);
         });
 
 
-        //todo:логика добавления в корзину
+
         addToBasket.addClickListener(e -> {
             Basket basket = basketRepo.findByCustomer(userDetailsService.getCurrentUsername());
-
             basketItemRepo.save(item);
-
-
-
             basketRepo.save(basket);
+            productGrid.deselectAll();
+            addToBasket.setVisible(false);
+
 
         });
 
@@ -130,8 +153,8 @@ public class MainPage extends VerticalLayout {
     // метод поиска товаров по имени
     public void findProduct(String filterText) {
         if (StringUtils.isEmpty(filterText)) {
-            productGrid.setItems(repo.findAll());
-        } else productGrid.setItems(repo.findByName(filterText));
+            productGrid.setItems(productRepo.findAll());
+        } else productGrid.setItems(productRepo.findByName(filterText));
     }
 
     // метод логаута
