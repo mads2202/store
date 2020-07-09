@@ -2,6 +2,7 @@ package com.malyshev2202.store.backend.service;
 
 import com.malyshev2202.store.backend.model.User;
 import com.malyshev2202.store.backend.repo.UserRepo;
+import com.vaadin.flow.component.UI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,7 +38,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     //поиск пользователя по имени
     public User getCurrentUser() {
         return dao.findByEmail(getCurrentUsername());
-
-
+    }
+    // метод логаута
+    public void requestLogout() {
+        SecurityContextHolder.clearContext();
+        UI.getCurrent().getPage().reload();// to redirect user to the login page
     }
 }

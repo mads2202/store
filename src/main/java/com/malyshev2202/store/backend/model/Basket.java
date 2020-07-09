@@ -14,8 +14,7 @@ public class Basket {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="user_id")
     private User user;
-    @Transient
-    private HashSet<BasketItem> basketItemSet=new HashSet<>();
+
     private double totalPrice;
     private Date date;
 
@@ -41,14 +40,6 @@ public class Basket {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public HashSet<BasketItem> getBasketItemSet() {
-        return basketItemSet;
-    }
-
-    public void setBasketItemSet(HashSet<BasketItem> basketItemSet) {
-        this.basketItemSet = basketItemSet;
     }
 
     public double getTotalPrice() {

@@ -1,5 +1,6 @@
 package com.malyshev2202.store.UI;
 
+import com.malyshev2202.store.backend.component.GeneralButtonsComponent;
 import com.malyshev2202.store.backend.component.ProductEditor;
 import com.malyshev2202.store.backend.model.Basket;
 import com.malyshev2202.store.backend.model.BasketItem;
@@ -20,23 +21,20 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
+
 //todo: сдалай проверку на то кто зашёл админ или юзер, они разные кнопки должны видеть
 @Route("")
 public class MainPage extends VerticalLayout {
+    private final GeneralButtonsComponent generalButtonsComponent;
     private final ProductRepo productRepo;
     private final ProductEditor editor;
     private TextField filter;
     private Grid<Product> productGrid = new Grid<>(Product.class);
-    private Button profile;
-    private Button bascket;
     private final Button addNewBtn = new Button("Новый товар", VaadinIcon.PLUS.create());
     private Button addToBasket = new Button("Добавить в корзину");
-    private Button logout = new Button("Выйти");
     private final BasketRepo basketRepo;
     private final CustomUserDetailsService userDetailsService;
     private final BasketItemRepo basketItemRepo;
@@ -44,15 +42,14 @@ public class MainPage extends VerticalLayout {
 
 
     @Autowired
-    public MainPage(ProductRepo r, ProductEditor editor, BasketRepo br, CustomUserDetailsService uds, BasketItemRepo bir) {
+    public MainPage(GeneralButtonsComponent gbc, ProductRepo r, ProductEditor editor, BasketRepo br, CustomUserDetailsService uds, BasketItemRepo bir) {
         //Добавление кнопочек и прочего
+        this.generalButtonsComponent = gbc;
         this.basketItemRepo = bir;
         this.userDetailsService = uds;
         this.basketRepo = br;
         this.productRepo = r;
         this.editor = editor;
-        this.profile = new Button("Профиль", VaadinIcon.USER.create());
-        this.bascket = new Button("Корзина", VaadinIcon.CART_O.create());
         this.filter = new TextField();
         filter.setPlaceholder("Искать по имени");
         filter.setValueChangeMode(ValueChangeMode.EAGER);
@@ -61,7 +58,9 @@ public class MainPage extends VerticalLayout {
         MenuItem menu = menuBar.addItem(VaadinIcon.MENU.create());
         productGrid.setItems(productRepo.findAll());
         productGrid.setColumns("name", "description", "price", "number");
-        HorizontalLayout topButtons = new HorizontalLayout(menuBar, filter, profile, bascket, logout, addNewBtn);
+        HorizontalLayout topButtons = new HorizontalLayout(menuBar, filter, addNewBtn, generalButtonsComponent);
+        topButtons.setSpacing(true);
+        generalButtonsComponent.getReturnToMainPage().setVisible(false);
         HorizontalLayout bottomButtons = new HorizontalLayout(addToBasket);
         bottomButtons.setVisible(false);
         add(topButtons, productGrid, editor, bottomButtons);
@@ -83,7 +82,7 @@ public class MainPage extends VerticalLayout {
             if
             (productGrid.getSelectedItems() != null) {
                 addToBasket.setVisible(true);
-                List<BasketItem> list=basketItemRepo.findByBasket(basketRepo.findByCustomer(userDetailsService.getCurrentUsername()).getId());
+                List<BasketItem> list = basketItemRepo.findByBasket(basketRepo.findByCustomer(userDetailsService.getCurrentUsername()).getId());
                 //пробегаем в цикле по всем выбранным продуктам, но у меня он только 1
                 for (Product product : productGrid.getSelectedItems()
                 ) {
@@ -120,7 +119,6 @@ public class MainPage extends VerticalLayout {
         });
 
 
-
         addToBasket.addClickListener(e -> {
             Basket basket = basketRepo.findByCustomer(userDetailsService.getCurrentUsername());
             basketItemRepo.save(item);
@@ -135,11 +133,6 @@ public class MainPage extends VerticalLayout {
         // Instantiate and edit new Customer the new button is clicked
         addNewBtn.addClickListener(e -> editor.editProduct(new Product()));
         // логика перехода на страницу "Корзина" по нажатию кнопки
-        bascket.addClickListener(e -> UI.getCurrent().getPage().open("basket"));
-        // логика перехода на страницу "Профиль" по нажатию кнопки
-        profile.addClickListener(e -> UI.getCurrent().getPage().open("profile"));
-        //логика логаута по нажатию кнопки
-        logout.addClickListener(e -> requestLogout());
 
         // Listen changes made by the editor, refresh data from backend
         editor.setChangeHandler(() -> {
@@ -155,12 +148,6 @@ public class MainPage extends VerticalLayout {
         if (StringUtils.isEmpty(filterText)) {
             productGrid.setItems(productRepo.findAll());
         } else productGrid.setItems(productRepo.findByName(filterText));
-    }
-
-    // метод логаута
-    void requestLogout() {
-        SecurityContextHolder.clearContext();
-        UI.getCurrent().getPage().reload();// to redirect user to the login page
     }
 
 }

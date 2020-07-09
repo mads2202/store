@@ -1,5 +1,6 @@
 package com.malyshev2202.store.UI;
 
+import com.malyshev2202.store.backend.component.GeneralButtonsComponent;
 import com.malyshev2202.store.backend.model.User;
 import com.malyshev2202.store.backend.repo.UserRepo;
 import com.malyshev2202.store.backend.service.CustomUserDetailsService;
@@ -15,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 @Route("profile")
 public class ProfilePage extends VerticalLayout {
+    private final GeneralButtonsComponent generalButtonsComponent;
     private final CustomUserDetailsService userDetailsService;
     private final UserRepo repo;
     private TextField email = new TextField("Email");
@@ -22,13 +24,15 @@ public class ProfilePage extends VerticalLayout {
     private Button changePassword = new Button("Изменить пароль");
     private Label label = new Label("Ваши персональные данные сэр");
 
-    public ProfilePage(UserRepo r, CustomUserDetailsService uds) {
+    public ProfilePage(GeneralButtonsComponent gbc, UserRepo r, CustomUserDetailsService uds) {
         // кнопочки и инициализация объектов
+        this.generalButtonsComponent = gbc;
         this.repo = r;
         this.userDetailsService = uds;
         VerticalLayout layout = new VerticalLayout(label, email, password, changePassword);
         layout.setAlignItems(Alignment.CENTER);
-        add(layout);
+        add(generalButtonsComponent, layout);
+        generalButtonsComponent.getProfile().setVisible(false);
         //заполняем поле почты, почтой авторизованного пользователя
         email.setValue(userDetailsService.getCurrentUser().getEmail());
         email.setEnabled(false);
