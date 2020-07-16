@@ -1,5 +1,6 @@
 package com.malyshev2202.store.backend.component;
 
+import com.malyshev2202.store.backend.model.UserRole;
 import com.malyshev2202.store.backend.service.CustomUserDetailsService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -16,6 +17,7 @@ public class GeneralButtonsComponent extends VerticalLayout {
     private Button returnToMainPage = new Button("Вернуться на главную страницу");
     private Button profile = new Button("Профиль");
     private Button basket = new Button("Корзина");
+    private Button adminTool=new Button("Администраторский инструментарий");
     private final CustomUserDetailsService userDetailsService;
 
     public GeneralButtonsComponent(CustomUserDetailsService uds) {
@@ -24,11 +26,13 @@ public class GeneralButtonsComponent extends VerticalLayout {
         profile.setIcon(VaadinIcon.USER.create());
         basket.setIcon(VaadinIcon.CART_O.create());
         logout.setIcon(VaadinIcon.EXIT_O.create());
-        returnToMainPage.addClickListener(e -> UI.getCurrent().navigate(""));
+        returnToMainPage.addClickListener(e -> {UI.getCurrent().navigate(""); UI.getCurrent().getPage().reload();});
         profile.addClickListener(e -> UI.getCurrent().getPage().open("profile"));
         basket.addClickListener(e -> UI.getCurrent().getPage().open("basket"));
         logout.addClickListener(e -> userDetailsService.requestLogout());
-        HorizontalLayout layout = new HorizontalLayout(returnToMainPage, profile, basket, logout);
+        adminTool.setVisible(userDetailsService.getCurrentUser()!=null && userDetailsService.getCurrentUser().getRoles().contains(UserRole.ADMIN));
+        adminTool.addClickListener(e->{UI.getCurrent().navigate("adminToolProduct");});
+        HorizontalLayout layout = new HorizontalLayout(returnToMainPage, profile, basket, logout, adminTool);
         add(layout);
     }
 

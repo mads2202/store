@@ -42,7 +42,7 @@ public class SecurityConfig
                 .and()
                 .authorizeRequests()
                 // allow Vaadin URLs and the login URL without authentication
-                .regexMatchers("/frontend/.*", "/VAADIN/.*", "/login", "/accessDenied","/","/reg").permitAll()
+                .regexMatchers("/frontend/.*", "/VAADIN/.*", "/login", "/accessDenied","/","/reg","/forget").permitAll()
                 .regexMatchers(HttpMethod.POST, "/\\?v-r=.*").permitAll()
                 // deny any other URL until authenticated
                 .antMatchers("/**").fullyAuthenticated()

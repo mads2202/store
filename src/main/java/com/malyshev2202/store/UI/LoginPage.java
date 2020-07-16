@@ -8,6 +8,7 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
@@ -36,6 +37,7 @@ public class LoginPage extends VerticalLayout {
     private EmailField mail = new EmailField("Ввведите ваш email");
     private PasswordField password = new PasswordField("Введите ваш пароль");
     private Anchor regLink = new Anchor("http://localhost:8080/reg","Regestration");
+    private Anchor forgetPassword = new Anchor("http://localhost:8080/forget","Forget password?");
 
     @Autowired
     private AuthenticationManager authManager;
@@ -46,9 +48,10 @@ public class LoginPage extends VerticalLayout {
         this.basketService=bs;
         this.userDetailsService=uds;
         this.basketRepo=br;
-        VerticalLayout layout = new VerticalLayout(mail, password, login,regLink);
+        VerticalLayout layout = new VerticalLayout(mail, password, login,regLink,forgetPassword);
         layout.setAlignItems(Alignment.CENTER);
         add(layout);
+        login.setIcon(VaadinIcon.UNLOCK.create());
         // метод логина пользователя
         login.addClickListener(e -> {
             final UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(mail.getValue(),

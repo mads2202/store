@@ -44,4 +44,5 @@ public class CustomUserDetailsService implements UserDetailsService {
         SecurityContextHolder.clearContext();
         UI.getCurrent().getPage().reload();// to redirect user to the login page
     }
+
 }

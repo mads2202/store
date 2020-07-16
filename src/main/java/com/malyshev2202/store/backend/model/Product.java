@@ -1,7 +1,11 @@
 package com.malyshev2202.store.backend.model;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -11,12 +15,14 @@ public class Product {
     private Long id;
     @NotEmpty
     private String name;
-    @Transient
-    private Set<ProductCategory> category;
+    @ManyToMany(fetch = FetchType.EAGER)
+
+    private Set<Category> category=new HashSet<>();
     private String description;
     @NotEmpty
     private double price;
     private int number;
+    private String imagePath;
 
     public Product() {
     }
@@ -61,11 +67,19 @@ public class Product {
         return number;
     }
 
-    public Set<ProductCategory> getCategory() {
+    public Set<Category> getCategory() {
         return category;
     }
 
-    public void setCategory(Set<ProductCategory> category) {
+    public void setCategory(Set<Category> category) {
         this.category = category;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 }

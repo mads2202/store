@@ -7,6 +7,7 @@ import com.malyshev2202.store.backend.service.CustomUserDetailsService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -23,13 +24,14 @@ public class ProfilePage extends VerticalLayout {
     private TextField password = new TextField("Пароль");
     private Button changePassword = new Button("Изменить пароль");
     private Label label = new Label("Ваши персональные данные сэр");
+    private Button save=new Button("Сохранить изменения");
 
     public ProfilePage(GeneralButtonsComponent gbc, UserRepo r, CustomUserDetailsService uds) {
         // кнопочки и инициализация объектов
         this.generalButtonsComponent = gbc;
         this.repo = r;
         this.userDetailsService = uds;
-        VerticalLayout layout = new VerticalLayout(label, email, password, changePassword);
+        VerticalLayout layout = new VerticalLayout(label, email, password, changePassword,save);
         layout.setAlignItems(Alignment.CENTER);
         add(generalButtonsComponent, layout);
         generalButtonsComponent.getProfile().setVisible(false);
@@ -39,18 +41,25 @@ public class ProfilePage extends VerticalLayout {
         //заполняем поле пароля, паролем авторизованного пользователя
         password.setValue(userDetailsService.getCurrentUser().getPassword());
         password.setEnabled(false);
+        save.setIcon(VaadinIcon.FILE_ADD.create());
+
+        save.setVisible(false);
+        changePassword.setIcon(VaadinIcon.EDIT.create());
         //изменение пароля по нажатию кнопки
-        changePassword.addClickListener(e -> {
-            password.setEnabled(true);
-            if (password.getValue().isEmpty()) {
-                Notification.show("Для безопастности учётной записи, поле пороля не должно быть пустым");
-            } else {
-                User user = repo.findByEmail(userDetailsService.getCurrentUsername());
-                user.setPassword(password.getValue());
-                repo.save(user);
-                password.setEnabled(false);
-            }
+        changePassword.addClickListener(e->{password.setEnabled(true);
+        save.setVisible(true);
         });
+        save.addClickListener(e->{
+            if (password.getValue().isEmpty()) {
+            Notification.show("Для безопастности учётной записи, поле пороля не должно быть пустым");
+        } else {
+            User user = repo.findByEmail(userDetailsService.getCurrentUsername());
+            user.setPassword(password.getValue());
+            repo.save(user);
+            save.setVisible(false);
+            password.setEnabled(false);
+        }});
+
 
     }
 

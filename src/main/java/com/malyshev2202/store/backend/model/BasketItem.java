@@ -1,9 +1,13 @@
 package com.malyshev2202.store.backend.model;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
+
 public class BasketItem {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
