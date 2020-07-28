@@ -13,6 +13,7 @@ import com.malyshev2202.store.backend.service.CustomUserDetailsService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -30,18 +31,19 @@ import java.util.List;
 
 //todo: сдалай проверку на то кто зашёл админ или юзер, они разные кнопки должны видеть
 @Route("")
-public class MainPage extends VerticalLayout implements BeforeEnterObserver {
+public class MainPage extends VerticalLayout  {
     private final GeneralButtonsComponent generalButtonsComponent;
     private final ProductRepo productRepo;
     private TextField filter;
     private Grid<Product> productGrid = new Grid<>(Product.class);
-
+    private Product product;
     private Button addToBasket = new Button("Добавить в корзину");
     private final BasketRepo basketRepo;
     private final CustomUserDetailsService userDetailsService;
     private final BasketItemRepo basketItemRepo;
     private final CategoryRepo categoryRepo;
     private BasketItem item;
+    private Image productImage = new Image();
 
 
     @Autowired
@@ -68,94 +70,111 @@ public class MainPage extends VerticalLayout implements BeforeEnterObserver {
         for (MenuItem item : subMenuItems
         ) {
             item.addClickListener(e -> {
-                List<Product> list=new ArrayList<>();
+                List<Product> list = new ArrayList<>();
                 for (Product p : productRepo.findAll()
                 ) {
-                    if(p.getCategory().contains(categoryRepo.findByName(item.getText())))
-                    list.add(p);
+                    if (p.getCategory().contains(categoryRepo.findByName(item.getText())))
+                        list.add(p);
                 }
                 productGrid.setItems(list);
             });
 
-    }
+        }
 
         productGrid.setItems(productRepo.findAll());
-        productGrid.setColumns("name","description","price");
-    HorizontalLayout topButtons = new HorizontalLayout(menuBar, filter, generalButtonsComponent);
+        productGrid.setColumns("name", "description", "price");
+        HorizontalLayout topButtons = new HorizontalLayout(menuBar, filter, generalButtonsComponent);
         topButtons.setSpacing(true);
-        generalButtonsComponent.getReturnToMainPage().
+        generalButtonsComponent.getReturnToMainPage().setVisible(false);
 
-    setVisible(false);
 
-    HorizontalLayout bottomButtons = new HorizontalLayout(addToBasket);
-        bottomButtons.setVisible(false);
-
-    add(topButtons, productGrid, bottomButtons);
+        add(topButtons, productGrid, productImage, addToBasket);
+        addToBasket.setVisible(false);
+        productImage.setVisible(false);
         productGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
 
-    // покажи редактор товаров если товар выбран
-        productGrid.addSelectionListener(e ->
-
-    {
-        if (productGrid.getSelectedItems() != null && userDetailsService.getCurrentUser() != null)
-            bottomButtons.setVisible(true);
-        else
-            bottomButtons.setVisible(false);
-    });
-
-    //Если продукт выбран покажи кнопку добавления в корзину
-        productGrid.addSelectionListener(e ->
-
-    {
-        if
-        (productGrid.getSelectedItems() != null && userDetailsService.getCurrentUser() != null) {
-            addToBasket.setVisible(true);
-            List<BasketItem> list = basketItemRepo.findByBasket(basketRepo.findByCustomer(userDetailsService.getCurrentUsername()).getId());
-            //пробегаем в цикле по всем выбранным продуктам, но у меня он только 1
-            for (Product product : productGrid.getSelectedItems()
-            ) {
-                //проверка есть ли вообще BasketItem для этой корхины сейчас
-                if (!list.isEmpty()) {
-                    //пробегаем по всем существующим для этой корзины BasketItem
-                    for (BasketItem existedItem : basketItemRepo.findByBasket(basketRepo.
-                            findByCustomer(userDetailsService.getCurrentUsername()).getId())
-                    ) {
-                        //если такой BasketItem существует то увеличьте его количество на 1
-                        if (product.getName().equals(existedItem.getName()) && product.getPrice() == existedItem.getPrice()
-                                && product.getId() == existedItem.getProduct().getId()) {
-                            existedItem.setQuantity(existedItem.getQuantity() + 1);
-                            item = existedItem;
-
-                        } else
-                            //иначе создайте новый айтем
-                            item = new BasketItem(product.getName(), product.getPrice(), 1,
-                                    product, basketRepo.findByCustomer(userDetailsService.getCurrentUsername()));
-                    }
+        // покажи редактор товаров если товар выбран
+        productGrid.addSelectionListener(e -> {
+            if (productGrid.getSelectedItems() != null) {
+                for (Product p : productGrid.getSelectedItems()
+                ) {
+                    product = p;
                 }
-                //создать новый айтем если мы не прошли проверку
-                else
-                    item = new BasketItem(product.getName(), product.getPrice(), 1,
-                            product, basketRepo.findByCustomer(userDetailsService.getCurrentUsername()));
-            }
-        } else
-            addToBasket.setVisible(false);
-    });
+                if (product.getImagePath() != null) {
+                    productImage.setSrc(product.getImagePath());
+                    productImage.setVisible(true);
+                }
+            } else
+                productImage.setVisible(false);
+        });
+        productGrid.addSelectionListener(e ->
+
+        {
+            if (productGrid.getSelectedItems() != null && userDetailsService.getCurrentUser() != null) {
+                for (Product p : productGrid.getSelectedItems()
+                ) {
+                    product = p;
+                }
+                if (product.getImagePath() != null)
+                    productImage.setSrc(product.getImagePath());
+                addToBasket.setVisible(true);
+            } else
+                addToBasket.setVisible(false);
+        });
+
+        //Если продукт выбран покажи кнопку добавления в корзину
+        productGrid.addSelectionListener(e ->
+
+        {
+            if
+            (productGrid.getSelectedItems() != null && userDetailsService.getCurrentUser() != null) {
+                addToBasket.setVisible(true);
+                List<BasketItem> list = basketItemRepo.findByBasket(basketRepo.findByCustomer(userDetailsService.getCurrentUsername()).getId());
+                //пробегаем в цикле по всем выбранным продуктам, но у меня он только 1
+                for (Product product : productGrid.getSelectedItems()
+                ) {
+                    //проверка есть ли вообще BasketItem для этой корхины сейчас
+                    if (!list.isEmpty()) {
+                        //пробегаем по всем существующим для этой корзины BasketItem
+                        for (BasketItem existedItem : basketItemRepo.findByBasket(basketRepo.
+                                findByCustomer(userDetailsService.getCurrentUsername()).getId())
+                        ) {
+                            //если такой BasketItem существует то увеличьте его количество на 1
+                            if (product.getName().equals(existedItem.getName()) && product.getPrice() == existedItem.getPrice()
+                                    && product.getId() == existedItem.getProduct().getId()) {
+                                existedItem.setQuantity(existedItem.getQuantity() + 1);
+                                item = existedItem;
+
+                            } else
+                                //иначе создайте новый айтем
+                                item = new BasketItem(product.getName(), product.getPrice(), 1,
+                                        product, basketRepo.findByCustomer(userDetailsService.getCurrentUsername()));
+                        }
+                    }
+                    //создать новый айтем если мы не прошли проверку
+                    else
+                        item = new BasketItem(product.getName(), product.getPrice(), 1,
+                                product, basketRepo.findByCustomer(userDetailsService.getCurrentUsername()));
+                }
+            } else
+                addToBasket.setVisible(false);
+        });
 
 
         addToBasket.addClickListener(e ->
 
-    {
-        Basket basket = basketRepo.findByCustomer(userDetailsService.getCurrentUsername());
-        basketItemRepo.save(item);
-        basketRepo.save(basket);
-        productGrid.deselectAll();
-        addToBasket.setVisible(false);
+        {
+            Basket basket = basketRepo.findByCustomer(userDetailsService.getCurrentUsername());
+            basketItemRepo.save(item);
+            basketRepo.save(basket);
+            productGrid.deselectAll();
+            addToBasket.setVisible(false);
 
 
-    });
+        });
 
 
-}
+    }
 
     // метод поиска товаров по имени
     public void findProduct(String filterText) {
@@ -164,8 +183,7 @@ public class MainPage extends VerticalLayout implements BeforeEnterObserver {
         } else productGrid.setItems(productRepo.findByName(filterText));
     }
 
-    @Override
-    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
 
-    }
+
+
 }

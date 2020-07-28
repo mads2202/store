@@ -65,7 +65,7 @@ public class ProductEditor extends VerticalLayout implements KeyNotifier {
                 .bind(Product::getPrice, Product::setPrice);
         binder.forField(number).withConverter(new StringToIntegerConverter("Must enter a integer"))
                 .bind(Product::getNumber, Product::setNumber);
-        binder.forField(imagePath).bind()
+        binder.forField(imagePath).bind(Product::getImagePath,Product::setImagePath);
         save.getElement().getThemeList().add("primary");
         delete.getElement().getThemeList().add("error");
 
