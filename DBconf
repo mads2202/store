@@ -1,0 +1,10 @@
+//настройка доступа к бд в докере
+spring.jpa.hibernate.ddl-auto=update
+spring.datasource.url = jdbc:mysql://mysql-docker-container:3306/spring_app_db?allowPublicKeyRetrieval=true&useSSL=false
+spring.datasource.username = app_user
+spring.datasource.password = test123
+// настройка доступа к бд на пк
+spring.jpa.hibernate.ddl-auto=update
+spring.datasource.url=jdbc:mysql://${MYSQL_HOST:localhost}:3306/store?serverTimezone=Europe/Moscow
+spring.datasource.username=root
+spring.datasource.password=1234
