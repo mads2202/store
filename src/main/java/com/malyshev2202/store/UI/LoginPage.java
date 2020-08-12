@@ -4,6 +4,7 @@ import com.malyshev2202.store.backend.model.Basket;
 import com.malyshev2202.store.backend.repo.BasketRepo;
 import com.malyshev2202.store.backend.service.BasketService;
 import com.malyshev2202.store.backend.service.CustomUserDetailsService;
+import com.malyshev2202.store.backend.strategy.DBStrategy;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -32,23 +33,24 @@ import javax.servlet.http.HttpServletRequest;
 public class LoginPage extends VerticalLayout {
     private final BasketService basketService;
     private final CustomUserDetailsService userDetailsService;
-    private final BasketRepo basketRepo;
+    private final DBStrategy strategy;
     private Button login = new Button("Вход");
     private EmailField mail = new EmailField("Ввведите ваш email");
     private PasswordField password = new PasswordField("Введите ваш пароль");
-    private Anchor regLink = new Anchor("http://localhost:8080/reg","Regestration");
-    private Anchor forgetPassword = new Anchor("http://localhost:8080/forget","Forget password?");
+    private Anchor regLink = new Anchor("http://localhost:8080/reg", "Regestration");
+    private Anchor forgetPassword = new Anchor("http://localhost:8080/forget", "Forget password?");
 
     @Autowired
     private AuthenticationManager authManager;
 
-    @Autowired
-    private HttpServletRequest req;
-    public LoginPage(BasketRepo br, CustomUserDetailsService uds, BasketService bs) {
-        this.basketService=bs;
-        this.userDetailsService=uds;
-        this.basketRepo=br;
-        VerticalLayout layout = new VerticalLayout(mail, password, login,regLink,forgetPassword);
+
+
+    public LoginPage(DBStrategy dbStrategy,CustomUserDetailsService uds, BasketService bs) {
+        this.basketService = bs;
+        this.userDetailsService = uds;
+        this.strategy=dbStrategy;
+
+        VerticalLayout layout = new VerticalLayout(mail, password, login, regLink, forgetPassword);
         layout.setAlignItems(Alignment.CENTER);
         add(layout);
         login.setIcon(VaadinIcon.UNLOCK.create());
@@ -60,14 +62,14 @@ public class LoginPage extends VerticalLayout {
                 Authentication auth = authManager.authenticate(authReq);
                 SecurityContext sc = SecurityContextHolder.getContext();
                 sc.setAuthentication(auth);
-                Basket basket=new Basket(userDetailsService.getCurrentUser(),basketService.getCurrentDate());
-                basketRepo.save(basket);
+                Basket basket = new Basket(userDetailsService.getCurrentUser(), basketService.getCurrentDate());
+                strategy.saveBasket(basket);
                 UI.getCurrent().navigate("");
-            }
-            catch (final AuthenticationException ex) {
-                String message = "Incorrect user or password: " + ex.getMessage()+" " + mail.getValue() + ":" + password.getValue();
+            } catch (final AuthenticationException ex) {
+                String message = "Incorrect user or password: " + ex.getMessage() + " " + mail.getValue() + ":" + password.getValue();
                 Notification.show(message);
-        }});
+            }
+        });
         login.addClickShortcut(Key.ENTER);
 
     }

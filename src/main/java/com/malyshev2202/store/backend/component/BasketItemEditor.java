@@ -3,6 +3,7 @@ package com.malyshev2202.store.backend.component;
 import com.malyshev2202.store.backend.model.BasketItem;
 import com.malyshev2202.store.backend.model.Product;
 import com.malyshev2202.store.backend.repo.BasketItemRepo;
+import com.malyshev2202.store.backend.strategy.DBStrategy;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.KeyNotifier;
 import com.vaadin.flow.component.UI;
@@ -21,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @SpringComponent
 @UIScope
 public class BasketItemEditor extends VerticalLayout implements KeyNotifier {
-    private final BasketItemRepo basketItemRepo;
+    private final DBStrategy strategy;
     private BasketItem item;
     Binder<BasketItem> binder = new Binder<BasketItem>(BasketItem.class);
     Button save = new Button("Save", VaadinIcon.CHECK.create());
@@ -36,8 +37,8 @@ public class BasketItemEditor extends VerticalLayout implements KeyNotifier {
     }
 
     @Autowired
-    public BasketItemEditor(BasketItemRepo pr) {
-        this.basketItemRepo = pr;
+    public BasketItemEditor(DBStrategy dbStrategy) {
+        this.strategy = dbStrategy;
         add( quantity, actions);
         setSpacing(true);
         binder.forField(quantity).withConverter(new StringToIntegerConverter("Must enter a integer"))
@@ -63,7 +64,7 @@ public class BasketItemEditor extends VerticalLayout implements KeyNotifier {
             return;
         }
 
-            item = basketItemRepo.findById(bi.getId()).get();
+            item =strategy.findBasketItemById(bi.getId());
 
 
 
@@ -80,13 +81,13 @@ public class BasketItemEditor extends VerticalLayout implements KeyNotifier {
 
     //удаление товара
     void delete() {
-        basketItemRepo.delete(item);
+        strategy.deleteBasketItem(item);
         changeHandler.onChange();
     }
 
     //сохранение товара
     void save() {
-        basketItemRepo.save(item);
+        strategy.saveBasketItem(item);
         UI.getCurrent().getPage().reload();
         changeHandler.onChange();
     }

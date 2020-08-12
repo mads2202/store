@@ -4,6 +4,8 @@ import com.malyshev2202.store.backend.component.GeneralButtonsComponent;
 import com.malyshev2202.store.backend.component.ProductEditor;
 import com.malyshev2202.store.backend.model.Product;
 import com.malyshev2202.store.backend.repo.ProductRepo;
+import com.malyshev2202.store.backend.strategy.DBStrategy;
+import com.malyshev2202.store.backend.strategy.MYSQLStrategy;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -17,25 +19,25 @@ import org.springframework.util.StringUtils;
 
 @Route("adminToolProduct")
 public class AdminToolsPage extends VerticalLayout {
+    private final DBStrategy strategy;
     private TextField filter;
     private final GeneralButtonsComponent buttonsComponent;
-    private final ProductRepo productRepo;
     private Grid<Product> productGrid = new Grid<>(Product.class);
     private final ProductEditor editor;
     private final Button addNewBtn = new Button("Новый товар", VaadinIcon.PLUS.create());
 
-    public AdminToolsPage(ProductRepo r,ProductEditor pe, GeneralButtonsComponent gbc){
-        this.productRepo = r;
-        this.buttonsComponent=gbc;
-        this.editor=pe;
+    public AdminToolsPage(DBStrategy dbStrategy, ProductEditor pe, GeneralButtonsComponent gbc) {
+        this.strategy=dbStrategy;
+        this.buttonsComponent = gbc;
+        this.editor = pe;
         this.filter = new TextField();
         filter.setPlaceholder("Искать по имени");
         filter.setValueChangeMode(ValueChangeMode.EAGER);
         filter.addValueChangeListener(e -> findProduct(e.getValue()));
-        HorizontalLayout layout = new HorizontalLayout(filter,addNewBtn,buttonsComponent);
-        add(layout,productGrid,editor);
+        HorizontalLayout layout = new HorizontalLayout(filter, addNewBtn, buttonsComponent);
+        add(layout, productGrid, editor);
         productGrid.setColumns("name", "description", "price", "number");
-        productGrid.setItems(productRepo.findAll());
+        productGrid.setItems(strategy.findAllProducts());
         //когда товар выбран запускай редактирование
         productGrid.asSingleSelect().addValueChangeListener(e -> {
             editor.editProduct(e.getValue());
@@ -49,10 +51,11 @@ public class AdminToolsPage extends VerticalLayout {
         });
 
     }
+
     public void findProduct(String filterText) {
         if (StringUtils.isEmpty(filterText)) {
-            productGrid.setItems(productRepo.findAll());
-        } else productGrid.setItems(productRepo.findByName(filterText));
+            productGrid.setItems(strategy.findAllProducts());
+        } else productGrid.setItems(strategy.findProductByName(filterText));
     }
 
 }

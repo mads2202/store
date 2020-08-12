@@ -6,6 +6,7 @@ import com.malyshev2202.store.backend.model.Product;
 import com.malyshev2202.store.backend.repo.BasketItemRepo;
 import com.malyshev2202.store.backend.repo.CategoryRepo;
 import com.malyshev2202.store.backend.repo.ProductRepo;
+import com.malyshev2202.store.backend.strategy.DBStrategy;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.KeyNotifier;
 import com.vaadin.flow.component.button.Button;
@@ -30,9 +31,7 @@ import java.util.Set;
 @UIScope
 public class ProductEditor extends VerticalLayout implements KeyNotifier {
     private MultiSelectListBox<String> listBox = new MultiSelectListBox<>();
-    private final CategoryRepo categoryRepo;
-    private final ProductRepo productRepo;
-    private final BasketItemRepo basketItemRepo;
+    private final DBStrategy strategy;
     private Product product;
     private Binder<Product> binder = new Binder<Product>(Product.class);
     private Button save = new Button("Save", VaadinIcon.CHECK.create());
@@ -51,11 +50,8 @@ public class ProductEditor extends VerticalLayout implements KeyNotifier {
     }
 
     @Autowired
-    public ProductEditor(ProductRepo pr, BasketItemRepo bir, CategoryRepo cr) {
-        this.productRepo = pr;
-        this.categoryRepo = cr;
-        this.basketItemRepo = bir;
-
+    public ProductEditor(DBStrategy dbStrategy) {
+        this.strategy=dbStrategy;
         listBox.setItems(getCategoryNames());
         add(name, description, price, number,imagePath, listBox, actions);
         setSpacing(true);
@@ -89,7 +85,7 @@ public class ProductEditor extends VerticalLayout implements KeyNotifier {
         final boolean persisted = p.getId() != null;
         if (persisted) {
             // Find fresh entity for editing
-            product = productRepo.findById(p.getId()).get();
+            product = strategy.findProductById(p.getId());
 
         } else {
             product = p;
@@ -109,10 +105,10 @@ public class ProductEditor extends VerticalLayout implements KeyNotifier {
 
     //удаление товара
     void delete() {
-        for (BasketItem item : basketItemRepo.findByProductId(product.getId())) {
-            basketItemRepo.delete(item);
+        for (BasketItem item : strategy.findBasketItemByProduct(product.getId())) {
+            strategy.deleteBasketItem(item);
         }
-        productRepo.delete(product);
+        strategy.deleteProduct(product);
         changeHandler.onChange();
     }
 
@@ -120,7 +116,7 @@ public class ProductEditor extends VerticalLayout implements KeyNotifier {
     void save() {
 
         product.setCategory(getSelectedCategories());
-        productRepo.save(product);
+        strategy.saveProduct(product);
         changeHandler.onChange();
     }
 
@@ -132,7 +128,7 @@ public class ProductEditor extends VerticalLayout implements KeyNotifier {
 
     public List<String> getCategoryNames() {
         List<String> names = new ArrayList<>();
-        for (Category category : categoryRepo.findAll()
+        for (Category category : strategy.findAllCategories()
         ) {
             names.add(category.toString());
         }
@@ -143,7 +139,7 @@ public class ProductEditor extends VerticalLayout implements KeyNotifier {
         Set<Category> selectedCategories = new HashSet<>();
         for (String s : listBox.getSelectedItems()
         ) {
-            selectedCategories.add(categoryRepo.findByName(s));
+            selectedCategories.add(strategy.findCategoryByName(s));
         }
         return selectedCategories;
     }

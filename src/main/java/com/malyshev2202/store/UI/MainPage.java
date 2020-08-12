@@ -10,6 +10,7 @@ import com.malyshev2202.store.backend.repo.BasketRepo;
 import com.malyshev2202.store.backend.repo.CategoryRepo;
 import com.malyshev2202.store.backend.repo.ProductRepo;
 import com.malyshev2202.store.backend.service.CustomUserDetailsService;
+import com.malyshev2202.store.backend.strategy.DBStrategy;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.grid.Grid;
@@ -33,28 +34,24 @@ import java.util.List;
 @Route("")
 public class MainPage extends VerticalLayout  {
     private final GeneralButtonsComponent generalButtonsComponent;
-    private final ProductRepo productRepo;
+
     private TextField filter;
     private Grid<Product> productGrid = new Grid<>(Product.class);
     private Product product;
     private Button addToBasket = new Button("Добавить в корзину");
-    private final BasketRepo basketRepo;
     private final CustomUserDetailsService userDetailsService;
-    private final BasketItemRepo basketItemRepo;
-    private final CategoryRepo categoryRepo;
     private BasketItem item;
     private Image productImage = new Image();
+    private final DBStrategy strategy;
 
 
     @Autowired
-    public MainPage(CategoryRepo cr, GeneralButtonsComponent gbc, ProductRepo r, BasketRepo br, CustomUserDetailsService uds, BasketItemRepo bir) {
+    public MainPage(DBStrategy dbStrategy, GeneralButtonsComponent gbc, CustomUserDetailsService uds) {
         //Добавление кнопочек и прочего
-        this.categoryRepo = cr;
+        this.strategy=dbStrategy;
         this.generalButtonsComponent = gbc;
-        this.basketItemRepo = bir;
         this.userDetailsService = uds;
-        this.basketRepo = br;
-        this.productRepo = r;
+
 
         this.filter = new TextField();
         filter.setPlaceholder("Искать по имени");
@@ -62,18 +59,18 @@ public class MainPage extends VerticalLayout  {
         filter.addValueChangeListener(e -> findProduct(e.getValue()));
         MenuBar menuBar = new MenuBar();
         MenuItem menu = menuBar.addItem(VaadinIcon.MENU.create());
-        for (Category category : categoryRepo.findAll()) {
+        for (Category category : strategy.findAllCategories()) {
             menu.getSubMenu().addItem(category.getName());
         }
-        menu.addClickListener(e -> productGrid.setItems(productRepo.findAll()));
+        menu.addClickListener(e -> productGrid.setItems(strategy.findAllProducts()));
         List<MenuItem> subMenuItems = menu.getSubMenu().getItems();
         for (MenuItem item : subMenuItems
         ) {
             item.addClickListener(e -> {
                 List<Product> list = new ArrayList<>();
-                for (Product p : productRepo.findAll()
+                for (Product p : strategy.findAllProducts()
                 ) {
-                    if (p.getCategory().contains(categoryRepo.findByName(item.getText())))
+                    if (p.getCategory().contains(strategy.findCategoryByName(item.getText())))
                         list.add(p);
                 }
                 productGrid.setItems(list);
@@ -81,7 +78,7 @@ public class MainPage extends VerticalLayout  {
 
         }
 
-        productGrid.setItems(productRepo.findAll());
+        productGrid.setItems(strategy.findAllProducts());
         productGrid.setColumns("name", "description", "price");
         HorizontalLayout topButtons = new HorizontalLayout(menuBar, filter, generalButtonsComponent);
         topButtons.setSpacing(true);
@@ -129,15 +126,15 @@ public class MainPage extends VerticalLayout  {
             if
             (productGrid.getSelectedItems() != null && userDetailsService.getCurrentUser() != null) {
                 addToBasket.setVisible(true);
-                List<BasketItem> list = basketItemRepo.findByBasket(basketRepo.findByCustomer(userDetailsService.getCurrentUsername()).getId());
+                List<BasketItem> list = strategy.findBasketItemByBasket(strategy.findBasketByUser(userDetailsService.getCurrentUsername()).getId());
                 //пробегаем в цикле по всем выбранным продуктам, но у меня он только 1
                 for (Product product : productGrid.getSelectedItems()
                 ) {
                     //проверка есть ли вообще BasketItem для этой корхины сейчас
                     if (!list.isEmpty()) {
                         //пробегаем по всем существующим для этой корзины BasketItem
-                        for (BasketItem existedItem : basketItemRepo.findByBasket(basketRepo.
-                                findByCustomer(userDetailsService.getCurrentUsername()).getId())
+                        for (BasketItem existedItem : strategy.findBasketItemByBasket(strategy.
+                                findBasketByUser(userDetailsService.getCurrentUsername()).getId())
                         ) {
                             //если такой BasketItem существует то увеличьте его количество на 1
                             if (product.getName().equals(existedItem.getName()) && product.getPrice() == existedItem.getPrice()
@@ -148,13 +145,13 @@ public class MainPage extends VerticalLayout  {
                             } else
                                 //иначе создайте новый айтем
                                 item = new BasketItem(product.getName(), product.getPrice(), 1,
-                                        product, basketRepo.findByCustomer(userDetailsService.getCurrentUsername()));
+                                        product, strategy.findBasketByUser(userDetailsService.getCurrentUsername()));
                         }
                     }
                     //создать новый айтем если мы не прошли проверку
                     else
                         item = new BasketItem(product.getName(), product.getPrice(), 1,
-                                product, basketRepo.findByCustomer(userDetailsService.getCurrentUsername()));
+                                product,  strategy.findBasketByUser(userDetailsService.getCurrentUsername()));
                 }
             } else
                 addToBasket.setVisible(false);
@@ -164,9 +161,9 @@ public class MainPage extends VerticalLayout  {
         addToBasket.addClickListener(e ->
 
         {
-            Basket basket = basketRepo.findByCustomer(userDetailsService.getCurrentUsername());
-            basketItemRepo.save(item);
-            basketRepo.save(basket);
+            Basket basket =  strategy.findBasketByUser(userDetailsService.getCurrentUsername());
+            strategy.saveBasketItem(item);
+            strategy.saveBasket(basket);
             productGrid.deselectAll();
             addToBasket.setVisible(false);
 
@@ -179,8 +176,8 @@ public class MainPage extends VerticalLayout  {
     // метод поиска товаров по имени
     public void findProduct(String filterText) {
         if (StringUtils.isEmpty(filterText)) {
-            productGrid.setItems(productRepo.findAll());
-        } else productGrid.setItems(productRepo.findByName(filterText));
+            productGrid.setItems(strategy.findAllProducts());
+        } else productGrid.setItems(strategy.findProductByName(filterText));
     }
 
 

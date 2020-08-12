@@ -5,6 +5,7 @@ import com.malyshev2202.store.backend.model.BasketItem;
 import com.malyshev2202.store.backend.model.Product;
 import com.malyshev2202.store.backend.repo.BasketItemRepo;
 import com.malyshev2202.store.backend.repo.BasketRepo;
+import com.malyshev2202.store.backend.strategy.DBStrategy;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -12,11 +13,11 @@ import java.util.Date;
 @Service
 public class BasketService {
 
-    private final BasketItemRepo basketItemRepo;
+    private final DBStrategy strategy;
     private final CustomUserDetailsService userDetailsService;
 
-    public BasketService(BasketItemRepo bir, CustomUserDetailsService uds) {
-        this.basketItemRepo = bir;
+    public BasketService(DBStrategy dbStrategy, CustomUserDetailsService uds) {
+        this.strategy = dbStrategy;
         this.userDetailsService = uds;
     }
 
@@ -29,7 +30,7 @@ public class BasketService {
     //подсчёт общей стоимости корзины
     public double getTotalPrice(Basket basket) {
         double totalPrice = 0;
-        for (BasketItem item : basketItemRepo.findByBasket(basket.getId())) {
+        for (BasketItem item : strategy.findBasketItemByBasket(basket.getId())) {
             totalPrice += item.getPrice() * item.getQuantity();
         }
 

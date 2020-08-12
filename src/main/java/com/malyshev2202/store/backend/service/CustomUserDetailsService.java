@@ -2,6 +2,7 @@ package com.malyshev2202.store.backend.service;
 
 import com.malyshev2202.store.backend.model.User;
 import com.malyshev2202.store.backend.repo.UserRepo;
+import com.malyshev2202.store.backend.strategy.DBStrategy;
 import com.vaadin.flow.component.UI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -14,11 +15,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
     @Autowired
-    private UserRepo dao;
+    private DBStrategy strategy;
     // переопределение метода который заполняет UserDetails данными пользователя
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User myUser= dao.findByEmail(email);
+        User myUser= strategy.findUserByEmail(email);
         if (myUser == null) {
             throw new UsernameNotFoundException("Unknown user: "+email);
         }
@@ -37,7 +38,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
     //поиск пользователя по имени
     public User getCurrentUser() {
-        return dao.findByEmail(getCurrentUsername());
+        return strategy.findUserByEmail(getCurrentUsername());
     }
     // метод логаута
     public void requestLogout() {
