@@ -1,31 +1,23 @@
 package com.malyshev2202.store.backend.model;
 
+
+import org.springframework.data.cassandra.core.mapping.Indexed;
+import org.springframework.data.cassandra.core.mapping.PrimaryKey;
+import org.springframework.data.cassandra.core.mapping.Table;
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Entity
+@Table
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @PrimaryKey
     private Long id;
+    @Indexed
     private String name;
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "product_category",
-            joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id"))
-    List<Product> products=new ArrayList<>();
 
     public Category() {
-    }
-
-    public List<Product> getProducts() {
-        return products;
-    }
-
-    public void setProducts(List<Product> products) {
-        this.products = products;
     }
 
     public Category(String name) {

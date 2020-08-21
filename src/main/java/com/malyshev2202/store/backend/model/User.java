@@ -1,24 +1,25 @@
 package com.malyshev2202.store.backend.model;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+
+import org.springframework.data.cassandra.core.mapping.Indexed;
+import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 
 import javax.persistence.*;
-import java.util.Collection;
-import java.util.Set;
+
 
 @Entity
-@Table(name = "usr")
+@javax.persistence.Table(name = "usr")
+@org.springframework.data.cassandra.core.mapping.Table
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @PrimaryKey
     private Long id;
+    @Indexed
     private String email;
     private String password;
-    @ElementCollection(targetClass = UserRole.class, fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
-    @Enumerated(EnumType.STRING)
-    private Set<UserRole> roles;
+    private String role;
+    public static long iterator=2;
 
 
     public User() {
@@ -53,11 +54,11 @@ public class User {
         this.password = password;
     }
 
-    public Set<UserRole> getRoles() {
-        return roles;
+    public String getRoles() {
+        return role;
     }
 
-    public void setRoles(Set<UserRole> roles) {
-        this.roles = roles;
+    public void setRoles(String role) {
+        this.role = role;
     }
 }

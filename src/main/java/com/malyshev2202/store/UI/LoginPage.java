@@ -1,9 +1,9 @@
 package com.malyshev2202.store.UI;
 
 import com.malyshev2202.store.backend.model.Basket;
-import com.malyshev2202.store.backend.repo.BasketRepo;
 import com.malyshev2202.store.backend.service.BasketService;
 import com.malyshev2202.store.backend.service.CustomUserDetailsService;
+import com.malyshev2202.store.backend.strategy.CassandraStrategy;
 import com.malyshev2202.store.backend.strategy.DBStrategy;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
@@ -24,9 +24,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-
-import javax.servlet.http.HttpServletRequest;
 
 
 @Route(value = "login")
@@ -62,7 +59,13 @@ public class LoginPage extends VerticalLayout {
                 Authentication auth = authManager.authenticate(authReq);
                 SecurityContext sc = SecurityContextHolder.getContext();
                 sc.setAuthentication(auth);
-                Basket basket = new Basket(userDetailsService.getCurrentUser(), basketService.getCurrentDate());
+                Basket basket = new Basket(userDetailsService.getCurrentUser().getId(), basketService.getCurrentDate());
+                if(strategy instanceof CassandraStrategy){
+                    basket.setId(Basket.iterator);
+                    Basket.iterator++;
+
+                }
+
                 strategy.saveBasket(basket);
                 UI.getCurrent().navigate("");
             } catch (final AuthenticationException ex) {

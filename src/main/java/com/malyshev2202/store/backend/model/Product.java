@@ -1,28 +1,35 @@
 package com.malyshev2202.store.backend.model;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+
+import org.springframework.data.cassandra.core.mapping.Indexed;
+import org.springframework.data.cassandra.core.mapping.PrimaryKey;
+import org.springframework.data.cassandra.core.mapping.SASI;
+import org.springframework.data.cassandra.core.mapping.Table;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import java.util.HashSet;
 import java.util.Set;
 
+
 @Entity
+@Table
 public class Product {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @PrimaryKey
     private Long id;
     @NotEmpty
+    @Indexed
+    @SASI(indexMode = SASI.IndexMode.CONTAINS)
     private String name;
-    @ManyToMany(fetch = FetchType.EAGER)
-
-    private Set<Category> category=new HashSet<>();
     private String description;
     @NotEmpty
     private double price;
     private int number;
     private String imagePath;
+    public static long iterator = 2;
 
     public Product() {
     }
@@ -65,14 +72,6 @@ public class Product {
 
     public int getNumber() {
         return number;
-    }
-
-    public Set<Category> getCategory() {
-        return category;
-    }
-
-    public void setCategory(Set<Category> category) {
-        this.category = category;
     }
 
     public String getImagePath() {

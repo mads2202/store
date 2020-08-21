@@ -1,15 +1,13 @@
 package com.malyshev2202.store.UI;
 
 import com.malyshev2202.store.backend.component.GeneralButtonsComponent;
+import com.malyshev2202.store.backend.config.CassandraConfig;
 import com.malyshev2202.store.backend.model.Basket;
 import com.malyshev2202.store.backend.model.BasketItem;
 import com.malyshev2202.store.backend.model.Category;
 import com.malyshev2202.store.backend.model.Product;
-import com.malyshev2202.store.backend.repo.BasketItemRepo;
-import com.malyshev2202.store.backend.repo.BasketRepo;
-import com.malyshev2202.store.backend.repo.CategoryRepo;
-import com.malyshev2202.store.backend.repo.ProductRepo;
 import com.malyshev2202.store.backend.service.CustomUserDetailsService;
+import com.malyshev2202.store.backend.strategy.CassandraStrategy;
 import com.malyshev2202.store.backend.strategy.DBStrategy;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.MenuItem;
@@ -21,8 +19,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -32,7 +28,7 @@ import java.util.List;
 
 //todo: сдалай проверку на то кто зашёл админ или юзер, они разные кнопки должны видеть
 @Route("")
-public class MainPage extends VerticalLayout  {
+public class MainPage extends VerticalLayout {
     private final GeneralButtonsComponent generalButtonsComponent;
 
     private TextField filter;
@@ -48,7 +44,7 @@ public class MainPage extends VerticalLayout  {
     @Autowired
     public MainPage(DBStrategy dbStrategy, GeneralButtonsComponent gbc, CustomUserDetailsService uds) {
         //Добавление кнопочек и прочего
-        this.strategy=dbStrategy;
+        this.strategy = dbStrategy;
         this.generalButtonsComponent = gbc;
         this.userDetailsService = uds;
 
@@ -68,10 +64,10 @@ public class MainPage extends VerticalLayout  {
         ) {
             item.addClickListener(e -> {
                 List<Product> list = new ArrayList<>();
-                for (Product p : strategy.findAllProducts()
+                for (Long l: strategy.findProductByCategoryName(strategy.findCategoryByName(item.getText()).toString())
                 ) {
-                    if (p.getCategory().contains(strategy.findCategoryByName(item.getText())))
-                        list.add(p);
+
+                        list.add(strategy.findProductById(l));
                 }
                 productGrid.setItems(list);
             });
@@ -138,20 +134,20 @@ public class MainPage extends VerticalLayout  {
                         ) {
                             //если такой BasketItem существует то увеличьте его количество на 1
                             if (product.getName().equals(existedItem.getName()) && product.getPrice() == existedItem.getPrice()
-                                    && product.getId() == existedItem.getProduct().getId()) {
+                                    && product.getId() == existedItem.getProductId()) {
                                 existedItem.setQuantity(existedItem.getQuantity() + 1);
                                 item = existedItem;
 
                             } else
                                 //иначе создайте новый айтем
                                 item = new BasketItem(product.getName(), product.getPrice(), 1,
-                                        product, strategy.findBasketByUser(userDetailsService.getCurrentUsername()));
+                                        product.getId(), strategy.findBasketByUser(userDetailsService.getCurrentUsername()).getId());
                         }
                     }
                     //создать новый айтем если мы не прошли проверку
                     else
                         item = new BasketItem(product.getName(), product.getPrice(), 1,
-                                product,  strategy.findBasketByUser(userDetailsService.getCurrentUsername()));
+                                product.getId(), strategy.findBasketByUser(userDetailsService.getCurrentUsername()).getId());
                 }
             } else
                 addToBasket.setVisible(false);
@@ -161,7 +157,11 @@ public class MainPage extends VerticalLayout  {
         addToBasket.addClickListener(e ->
 
         {
-            Basket basket =  strategy.findBasketByUser(userDetailsService.getCurrentUsername());
+            Basket basket = strategy.findBasketByUser(userDetailsService.getCurrentUsername());
+            if(strategy instanceof CassandraStrategy){
+                item.setId(BasketItem.iterator);
+                BasketItem.iterator++;
+            }
             strategy.saveBasketItem(item);
             strategy.saveBasket(basket);
             productGrid.deselectAll();
@@ -179,8 +179,6 @@ public class MainPage extends VerticalLayout  {
             productGrid.setItems(strategy.findAllProducts());
         } else productGrid.setItems(strategy.findProductByName(filterText));
     }
-
-
 
 
 }

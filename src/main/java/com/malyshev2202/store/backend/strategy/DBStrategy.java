@@ -14,11 +14,14 @@ public interface DBStrategy {
     void saveBasketItem(BasketItem basketItem);
     void saveUser(User user);
     void saveProduct(Product product);
+    void saveCategoryAndProduct(CategoryAndProduct categoryAndProduct);
     List<Category> findAllCategories();
     Category findCategoryByName(String name);
     User findUserByEmail(String email);
     BasketItem findBasketItemById(Long id);
     void deleteBasketItem(BasketItem basketItem);
     void deleteProduct(Product product);
+    void deleteCategoryAndProductById(Long id);
     Product findProductById(Long id);
+    List<Long> findProductByCategoryName(String name);
 }

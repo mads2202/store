@@ -2,12 +2,8 @@ package com.malyshev2202.store.backend.service;
 
 import com.malyshev2202.store.backend.model.Basket;
 import com.malyshev2202.store.backend.model.BasketItem;
-import com.malyshev2202.store.backend.model.Product;
-import com.malyshev2202.store.backend.repo.BasketItemRepo;
-import com.malyshev2202.store.backend.repo.BasketRepo;
 import com.malyshev2202.store.backend.strategy.DBStrategy;
 import org.springframework.stereotype.Service;
-
 import java.util.Date;
 
 @Service

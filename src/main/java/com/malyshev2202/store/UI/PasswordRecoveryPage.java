@@ -1,7 +1,6 @@
 package com.malyshev2202.store.UI;
 
 import com.malyshev2202.store.backend.model.User;
-import com.malyshev2202.store.backend.repo.UserRepo;
 import com.malyshev2202.store.backend.service.MailSender;
 import com.malyshev2202.store.backend.strategy.DBStrategy;
 import com.vaadin.flow.component.UI;

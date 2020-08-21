@@ -2,8 +2,8 @@ package com.malyshev2202.store.UI;
 
 import com.malyshev2202.store.backend.model.User;
 import com.malyshev2202.store.backend.model.UserRole;
-import com.malyshev2202.store.backend.repo.UserRepo;
 import com.malyshev2202.store.backend.service.CustomUserDetailsService;
+import com.malyshev2202.store.backend.strategy.CassandraStrategy;
 import com.malyshev2202.store.backend.strategy.DBStrategy;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
@@ -45,7 +45,7 @@ public class RegistrationPage extends VerticalLayout {
         setAlignItems(Alignment.CENTER);
         regButton.addClickListener(e -> regNewUser());
         regButton.addClickShortcut(Key.ENTER);
-        createAdmin.setVisible(userDetailsService.getCurrentUser() != null && userDetailsService.getCurrentUser().getRoles().contains(UserRole.ADMIN));
+        createAdmin.setVisible(userDetailsService.getCurrentUser() != null && userDetailsService.getCurrentUser().getRoles().equals(UserRole.ADMIN.toString()));
 
     }
 
@@ -60,10 +60,16 @@ public class RegistrationPage extends VerticalLayout {
             Notification.show("Пользователь с таким email уже зарегистрирован");
         } else {
             User user = new User(email.getValue(), password.getValue());
+            if(strategy instanceof CassandraStrategy)
+            {
+                user.setId(User.iterator);
+                User.iterator++;
+            }
             if (createAdmin.getValue())
-                user.setRoles(Collections.singleton(UserRole.ADMIN));
+                user.setRoles(Collections.singleton(UserRole.ADMIN).toString());
+
             else
-                user.setRoles(Collections.singleton(UserRole.USER));
+                user.setRoles(Collections.singleton(UserRole.USER).toString());
             strategy.saveUser(user);
             UI.getCurrent().navigate("login");
 

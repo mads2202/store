@@ -2,10 +2,9 @@ package com.malyshev2202.store.backend.component;
 
 import com.malyshev2202.store.backend.model.BasketItem;
 import com.malyshev2202.store.backend.model.Category;
+import com.malyshev2202.store.backend.model.CategoryAndProduct;
 import com.malyshev2202.store.backend.model.Product;
-import com.malyshev2202.store.backend.repo.BasketItemRepo;
-import com.malyshev2202.store.backend.repo.CategoryRepo;
-import com.malyshev2202.store.backend.repo.ProductRepo;
+import com.malyshev2202.store.backend.strategy.CassandraStrategy;
 import com.malyshev2202.store.backend.strategy.DBStrategy;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.KeyNotifier;
@@ -33,6 +32,7 @@ public class ProductEditor extends VerticalLayout implements KeyNotifier {
     private MultiSelectListBox<String> listBox = new MultiSelectListBox<>();
     private final DBStrategy strategy;
     private Product product;
+    private CategoryAndProduct categoryAndProduct;
     private Binder<Product> binder = new Binder<Product>(Product.class);
     private Button save = new Button("Save", VaadinIcon.CHECK.create());
     private Button cancel = new Button("Cancel");
@@ -108,15 +108,29 @@ public class ProductEditor extends VerticalLayout implements KeyNotifier {
         for (BasketItem item : strategy.findBasketItemByProduct(product.getId())) {
             strategy.deleteBasketItem(item);
         }
+        strategy.deleteCategoryAndProductById(product.getId());
         strategy.deleteProduct(product);
         changeHandler.onChange();
     }
 
     //сохранение товара
     void save() {
-
-        product.setCategory(getSelectedCategories());
+        if(strategy instanceof CassandraStrategy){
+            product.setId(Product.iterator);
+            Product.iterator++;
+        }
         strategy.saveProduct(product);
+        for(Category c:getSelectedCategories()){
+            categoryAndProduct=new CategoryAndProduct(c.getName(), product.getId());
+            if(strategy instanceof CassandraStrategy){
+                categoryAndProduct.setId(CategoryAndProduct.iterator);
+                CategoryAndProduct.iterator++;
+            }
+
+
+            strategy.saveCategoryAndProduct(categoryAndProduct);
+
+        }
         changeHandler.onChange();
     }
 

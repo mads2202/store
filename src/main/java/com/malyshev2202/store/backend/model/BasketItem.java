@@ -1,36 +1,37 @@
 package com.malyshev2202.store.backend.model;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
+import org.springframework.data.cassandra.core.mapping.Indexed;
+import org.springframework.data.cassandra.core.mapping.PrimaryKey;
+import org.springframework.data.cassandra.core.mapping.Table;
 import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-
+@Table
 public class BasketItem {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+@PrimaryKey
     private Long id;
     private String name;
     private double price;
     private int quantity;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "product_id")
-    private Product product;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "basket_id")
-    private Basket basket;
+    @Indexed
+    private Long productId;
+    @Indexed
+    private Long basketId;
+    public static long iterator=1;
 
     public BasketItem() {
     }
 
-    public BasketItem(String name, double price, int quantity, Product product, Basket basket) {
+    public BasketItem(String name, double price, int quantity, Long productId, Long basketId) {
         this.name = name;
         this.price = price;
         this.quantity = quantity;
-        this.product = product;
-        this.basket = basket;
+        this.productId = productId;
+        this.basketId = basketId;
     }
 
     public Long getId() {
@@ -65,37 +66,37 @@ public class BasketItem {
         this.quantity = quantity;
     }
 
-    public Product getProduct() {
-        return product;
+    public Long getProductId() {
+        return productId;
     }
 
-    public void setProduct(Product product) {
-        this.product = product;
+    public void setProductId(Long productId) {
+        this.productId = productId;
     }
 
-    public Basket getBasket() {
-        return basket;
+    public Long getBasketId() {
+        return basketId;
     }
 
-    public void setBasket(Basket basket) {
-        this.basket = basket;
+    public void setBasketId(Long basketId) {
+        this.basketId = basketId;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof BasketItem)) return false;
-        BasketItem that = (BasketItem) o;
-        return Double.compare(that.price, price) == 0 &&
-                quantity == that.quantity &&
-                name.equals(that.name) &&
-                product.equals(that.product) &&
-                basket.equals(that.basket);
+        BasketItem item = (BasketItem) o;
+        return Double.compare(item.price, price) == 0 &&
+                name.equals(item.name) &&
+                productId.equals(item.productId) &&
+                basketId.equals(item.basketId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, price, quantity, product, basket);
+        return Objects.hash(name, price, productId, basketId);
     }
 }
+
 

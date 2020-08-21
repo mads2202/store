@@ -4,13 +4,10 @@ import com.malyshev2202.store.backend.component.BasketItemEditor;
 import com.malyshev2202.store.backend.component.GeneralButtonsComponent;
 import com.malyshev2202.store.backend.model.Basket;
 import com.malyshev2202.store.backend.model.BasketItem;
-import com.malyshev2202.store.backend.repo.BasketItemRepo;
-import com.malyshev2202.store.backend.repo.BasketRepo;
-import com.malyshev2202.store.backend.repo.ProductRepo;
 import com.malyshev2202.store.backend.service.BasketService;
 import com.malyshev2202.store.backend.service.CustomUserDetailsService;
+import com.malyshev2202.store.backend.strategy.CassandraStrategy;
 import com.malyshev2202.store.backend.strategy.DBStrategy;
-import com.malyshev2202.store.backend.strategy.MYSQLStrategy;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -53,8 +50,13 @@ public class BasketPage extends VerticalLayout {
         payButton.addClickListener(e -> {
             basket.setTotalPrice(basketService.getTotalPrice(basket));
             strategy.saveBasket(basket);
+            Basket basket1=new Basket(userDetailsService.getCurrentUser().getId(), basketService.getCurrentDate());
+            if(strategy instanceof CassandraStrategy){
+                basket1.setId(Basket.iterator);
+                Basket.iterator++;
+            }
 
-            strategy.saveBasket(new Basket(userDetailsService.getCurrentUser(), basketService.getCurrentDate()));
+            strategy.saveBasket(basket1);
             UI.getCurrent().getPage().reload();
             Notification.show("Товары оплачены. Спасибо что пользуетесь нашем магазином");
         });

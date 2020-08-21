@@ -7,8 +7,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
@@ -32,7 +30,7 @@ public class GeneralButtonsComponent extends VerticalLayout  {
         profile.addClickListener(e -> UI.getCurrent().getPage().open("profile"));
         basket.addClickListener(e -> UI.getCurrent().getPage().open("basket"));
         logout.addClickListener(e -> userDetailsService.requestLogout());
-        adminTool.setVisible(userDetailsService.getCurrentUser()!=null && userDetailsService.getCurrentUser().getRoles().contains(UserRole.ADMIN));
+        adminTool.setVisible(userDetailsService.getCurrentUser()!=null && userDetailsService.getCurrentUser().getRoles().equals(UserRole.ADMIN.toString()));
         adminTool.addClickListener(e->{UI.getCurrent().getPage().open("adminToolProduct");});
         HorizontalLayout layout = new HorizontalLayout(returnToMainPage, profile, basket, logout, adminTool);
         add(layout);

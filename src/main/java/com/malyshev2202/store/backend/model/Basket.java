@@ -1,29 +1,31 @@
 package com.malyshev2202.store.backend.model;
 
+import org.springframework.data.cassandra.core.mapping.Indexed;
+import org.springframework.data.cassandra.core.mapping.PrimaryKey;
+import org.springframework.data.cassandra.core.mapping.Table;
+
 import javax.persistence.*;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
+@Table
 public class Basket {
     @Id
+    @PrimaryKey
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="user_id")
-    private User user;
-
+    @Indexed
+    private Long userId;
     private double totalPrice;
     private Date date;
+    public static  long iterator=1;
 
     public Basket() {
     }
 
-    public Basket(User customer,Date date) {
-        this.user = customer;
-        this.date=date;
+    public Basket(Long userId, Date date) {
+        this.userId = userId;
+        this.date = date;
     }
 
     public Long getId() {
@@ -34,12 +36,12 @@ public class Basket {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public double getTotalPrice() {
