@@ -114,9 +114,9 @@ public class MYSQLStrategy implements DBStrategy {
     }
 
     @Override
-    public List<Long> findProductByCategoryName(String name) {
+    public List<Long> findProductByCategoryId(Long id) {
         List <Long> list=new ArrayList<>();
-        for (CategoryAndProduct cap:categoryAndProductRepo.findAllByCategoryName(name)){
+        for (CategoryAndProduct cap:categoryAndProductRepo.findAllByCategoryId(id)){
             list.add(cap.getProductId());
         }
         return list;

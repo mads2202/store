@@ -116,9 +116,9 @@ public class CassandraStrategy implements DBStrategy {
     }
 
     @Override
-    public List<Long> findProductByCategoryName(String name) {
+    public List<Long> findProductByCategoryId(Long id) {
         List <Long> list=new ArrayList<>();
-        for (CategoryAndProduct cap:categoryAndProductDAO.findAllByCategoryName(name)){
+        for (CategoryAndProduct cap:categoryAndProductDAO.findAllByCategoryId(id)){
             list.add(cap.getProductId());
         }
 

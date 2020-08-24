@@ -21,7 +21,6 @@ public class BasketItem {
     private Long productId;
     @Indexed
     private Long basketId;
-    public static long iterator=1;
 
     public BasketItem() {
     }

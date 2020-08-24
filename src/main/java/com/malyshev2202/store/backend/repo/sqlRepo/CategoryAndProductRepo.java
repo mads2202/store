@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface CategoryAndProductRepo extends JpaRepository<CategoryAndProduct, String> {
 
-    List<CategoryAndProduct> findAllByCategoryName(String name);
+    List<CategoryAndProduct> findAllByCategoryId(Long id);
     @Query("from CategoryAndProduct c where c.productId=:id")
     void deleteByProductId(@Param("id") Long id);
 }

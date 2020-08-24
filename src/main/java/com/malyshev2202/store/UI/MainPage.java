@@ -25,6 +25,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 //todo: сдалай проверку на то кто зашёл админ или юзер, они разные кнопки должны видеть
 @Route("")
@@ -64,7 +65,7 @@ public class MainPage extends VerticalLayout {
         ) {
             item.addClickListener(e -> {
                 List<Product> list = new ArrayList<>();
-                for (Long l: strategy.findProductByCategoryName(strategy.findCategoryByName(item.getText()).toString())
+                for (Long l: strategy.findProductByCategoryId(strategy.findCategoryByName(item.getText()).getId())
                 ) {
 
                         list.add(strategy.findProductById(l));
@@ -159,8 +160,8 @@ public class MainPage extends VerticalLayout {
         {
             Basket basket = strategy.findBasketByUser(userDetailsService.getCurrentUsername());
             if(strategy instanceof CassandraStrategy){
-                item.setId(BasketItem.iterator);
-                BasketItem.iterator++;
+                item.setId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
+
             }
             strategy.saveBasketItem(item);
             strategy.saveBasket(basket);

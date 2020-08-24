@@ -18,7 +18,7 @@ public class Basket {
     private Long userId;
     private double totalPrice;
     private Date date;
-    public static  long iterator=1;
+
 
     public Basket() {
     }

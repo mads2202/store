@@ -25,6 +25,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.UUID;
+
 
 @Route(value = "login")
 public class LoginPage extends VerticalLayout {
@@ -61,8 +63,8 @@ public class LoginPage extends VerticalLayout {
                 sc.setAuthentication(auth);
                 Basket basket = new Basket(userDetailsService.getCurrentUser().getId(), basketService.getCurrentDate());
                 if(strategy instanceof CassandraStrategy){
-                    basket.setId(Basket.iterator);
-                    Basket.iterator++;
+                    basket.setId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
+
 
                 }
 

@@ -21,10 +21,7 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @SpringComponent
 @UIScope
@@ -116,15 +113,15 @@ public class ProductEditor extends VerticalLayout implements KeyNotifier {
     //сохранение товара
     void save() {
         if(strategy instanceof CassandraStrategy){
-            product.setId(Product.iterator);
-            Product.iterator++;
+            product.setId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
+
         }
         strategy.saveProduct(product);
         for(Category c:getSelectedCategories()){
-            categoryAndProduct=new CategoryAndProduct(c.getName(), product.getId());
+            categoryAndProduct=new CategoryAndProduct(c.getId(), product.getId());
             if(strategy instanceof CassandraStrategy){
-                categoryAndProduct.setId(CategoryAndProduct.iterator);
-                CategoryAndProduct.iterator++;
+                categoryAndProduct.setId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
+
             }
 
 

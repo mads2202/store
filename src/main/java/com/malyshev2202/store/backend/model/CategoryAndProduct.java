@@ -18,26 +18,25 @@ public class CategoryAndProduct {
     @PrimaryKey
     private Long id;
     @Indexed
-    private String categoryName;
+    private Long categoryId;
     @Indexed
     private Long productId;
-    public static long iterator=1;
 
-    public CategoryAndProduct(String categoryName, Long productId) {
+    public CategoryAndProduct(Long categoryId, Long productId) {
 
-        this.categoryName = categoryName;
+        this.categoryId = categoryId;
         this.productId = productId;
     }
 
     public CategoryAndProduct() {
     }
 
-    public String getCategoryName() {
-        return categoryName;
+    public Long getCategoryId() {
+        return categoryId;
     }
 
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
 
     public Long getProductId() {

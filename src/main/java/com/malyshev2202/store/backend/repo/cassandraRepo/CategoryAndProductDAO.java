@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 public interface CategoryAndProductDAO extends CassandraRepository<CategoryAndProduct, Long> {
-    List<CategoryAndProduct> findAllByCategoryName(String name);
+    List<CategoryAndProduct> findAllByCategoryId(Long Id);
     List<CategoryAndProduct> findByProductId(Long id);
 
 

@@ -19,7 +19,6 @@ public class User {
     private String email;
     private String password;
     private String role;
-    public static long iterator=2;
 
 
     public User() {

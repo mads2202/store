@@ -29,7 +29,7 @@ public class Product {
     private double price;
     private int number;
     private String imagePath;
-    public static long iterator = 2;
+
 
     public Product() {
     }

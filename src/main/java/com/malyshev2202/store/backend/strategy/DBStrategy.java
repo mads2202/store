@@ -23,5 +23,5 @@ public interface DBStrategy {
     void deleteProduct(Product product);
     void deleteCategoryAndProductById(Long id);
     Product findProductById(Long id);
-    List<Long> findProductByCategoryName(String name);
+    List<Long> findProductByCategoryId(Long id);
 }

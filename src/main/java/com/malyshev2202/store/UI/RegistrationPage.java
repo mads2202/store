@@ -19,6 +19,7 @@ import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collections;
+import java.util.UUID;
 
 //этот класс реализует страницу регистрации новых пользователей
 @Route("reg")
@@ -62,8 +63,8 @@ public class RegistrationPage extends VerticalLayout {
             User user = new User(email.getValue(), password.getValue());
             if(strategy instanceof CassandraStrategy)
             {
-                user.setId(User.iterator);
-                User.iterator++;
+                user.setId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
+
             }
             if (createAdmin.getValue())
                 user.setRoles(Collections.singleton(UserRole.ADMIN).toString());

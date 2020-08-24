@@ -17,6 +17,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 
+import java.util.UUID;
+
 @Route("basket")
 public class BasketPage extends VerticalLayout {
     private final DBStrategy strategy;
@@ -52,8 +54,7 @@ public class BasketPage extends VerticalLayout {
             strategy.saveBasket(basket);
             Basket basket1=new Basket(userDetailsService.getCurrentUser().getId(), basketService.getCurrentDate());
             if(strategy instanceof CassandraStrategy){
-                basket1.setId(Basket.iterator);
-                Basket.iterator++;
+                basket1.setId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
             }
 
             strategy.saveBasket(basket1);
