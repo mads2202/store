@@ -48,9 +48,10 @@
       "webpack": "4.42.0",
       "chokidar": "^3.4.0",
       "webpack-merge": "4.2.2",
-      "webpack-dev-server": "3.10.3"
+      "webpack-dev-server": "3.10.3",
+      "terser": "4.6.7"
     },
-    "hash": "1d5a05ee1aa8ffbbb733a5e21d772f04c6e008b2273a5e8d6e5273be0b220eeb"
+    "hash": "ac350716a76fe21d5710694c1f65ea34bc596fcb9a18376d4e597c8855af08b5"
   },
   "dependencies": {
     "@polymer/polymer": "3.2.0",
@@ -98,6 +99,7 @@
     "webpack": "4.42.0",
     "chokidar": "^3.4.0",
     "webpack-merge": "4.2.2",
-    "webpack-dev-server": "3.10.3"
+    "webpack-dev-server": "3.10.3",
+    "terser": "4.6.7"
   }
 }

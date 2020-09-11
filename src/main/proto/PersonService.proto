@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package grpc;
+
+option java_package = "com.malyshev2202.store.grpc";
+
+option java_multiple_files = true;
+
+service PersonRoleService{
+
+ rpc getRole(PersonRoleRequest) returns (PersonRoleResponse);
+}
+
+
+message PersonRoleRequest{
+
+ string name=1;
+}
+
+message PersonRoleResponse{
+
+ string role=1;
+}
+
