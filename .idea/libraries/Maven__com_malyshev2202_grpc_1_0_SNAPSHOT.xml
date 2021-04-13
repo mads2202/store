@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.malyshev2202:grpc:1.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/malyshev2202/grpc/1.0-SNAPSHOT/grpc-1.0-20200914.112331-1.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/malyshev2202/grpc/1.0-SNAPSHOT/grpc-1.0-20200914.112331-1-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/malyshev2202/grpc/1.0-SNAPSHOT/grpc-1.0-20200914.112331-1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

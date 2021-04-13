@@ -1,0 +1,9 @@
+{
+  "compatibilityMode": false,
+  "productionMode": false,
+  "npmFolder": "C:\\gitRepos\\store",
+  "generatedFolder": "C:\\gitRepos\\store\\target\\frontend",
+  "frontendFolder": "C:\\gitRepos\\store\\frontend",
+  "pnpm.enable": false,
+  "require.home.node": false
+}
